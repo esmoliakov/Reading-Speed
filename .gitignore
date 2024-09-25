@@ -18,3 +18,8 @@
 
 # Windows
 Thumbs.db
+
+Project/obj/Project.csproj.nuget.dgspec.json
+Project/obj/Project.csproj.nuget.g.props
+Project/obj/project.assets.json
+Project/obj/project.nuget.cache
