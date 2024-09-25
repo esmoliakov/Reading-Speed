@@ -1,0 +1,20 @@
+# .NET
+**/bin/
+**/obj/
+*.user
+*.suo
+*.sln.docstates
+
+# Visual Studio
+.vs/
+*.vscode/
+*.sln.ide
+
+# Rider
+.idea/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
