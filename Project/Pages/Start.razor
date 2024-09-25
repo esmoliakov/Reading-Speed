@@ -1,0 +1,21 @@
+@page "/start"
+
+
+<PageTitle>Start</PageTitle>
+
+
+<button class="btn btn-primary" @onclick="ShowText">Click me</button>
+
+@if (!string.IsNullOrEmpty(Text))
+{
+    <p>@Text</p>
+}
+
+@code {
+    private string Text;
+
+    private void ShowText()
+    {
+        Text = "Hello!";
+    }
+}

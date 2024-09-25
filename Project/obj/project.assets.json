@@ -2059,19 +2059,19 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Edvard\\.nuget\\packages\\": {}
+    "C:\\Users\\vikto\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\3semestras\\ReadingSpeedProject\\Reading-Speed\\Project\\Project.csproj",
+      "projectUniqueName": "D:\\vikto\\programming\\SoftwareEngineering\\Reading-Speed\\Project\\Project.csproj",
       "projectName": "Project",
-      "projectPath": "C:\\3semestras\\ReadingSpeedProject\\Reading-Speed\\Project\\Project.csproj",
-      "packagesPath": "C:\\Users\\Edvard\\.nuget\\packages\\",
-      "outputPath": "C:\\3semestras\\ReadingSpeedProject\\Reading-Speed\\Project\\obj\\",
+      "projectPath": "D:\\vikto\\programming\\SoftwareEngineering\\Reading-Speed\\Project\\Project.csproj",
+      "packagesPath": "C:\\Users\\vikto\\.nuget\\packages\\",
+      "outputPath": "D:\\vikto\\programming\\SoftwareEngineering\\Reading-Speed\\Project\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\Edvard\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\vikto\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
