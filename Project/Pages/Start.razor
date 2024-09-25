@@ -4,18 +4,27 @@
 <PageTitle>Start</PageTitle>
 
 
-<button class="btn btn-primary" @onclick="ShowText">Click me</button>
+<button class="btn btn-primary" @onclick="ShowText">Start</button>
 
-@if (!string.IsNullOrEmpty(Text))
+@if (!string.IsNullOrEmpty(Text) && TextVisibility)
 {
     <p>@Text</p>
 }
 
+<button class="btn btn-primary" @onclick="HideText">Stop</button>
+
 @code {
     private string Text;
+    private bool TextVisibility = true;
 
     private void ShowText()
     {
         Text = "Hello!";
+        TextVisibility = true;
+    }
+
+    private void HideText()
+    {
+        TextVisibility = false;
     }
 }
