@@ -1,0 +1,103 @@
+@page "/read-text"
+@inject NavigationManager Navigation
+<h3>Read text</h3> <!--Elapsed time stored in currentElapsed  -->
+
+TEXT FROM FILE @*Read text from file*@
+
+<div>
+    <span>@timeElapsed</span> seconds (total time)
+</div>
+<button @onclick="StopStopwatch">Finish reading</button>
+
+
+
+@code {
+ private int timeElapsed = 0;
+    private System.Timers.Timer timer;
+
+    protected override void OnInitialized()
+    {
+        // Initialize and start the timer
+        timer = new System.Timers.Timer(1000); // 1000ms = 1 second interval
+        timer.Elapsed += OnTimerElapsed;
+        timer.Start();
+    }
+
+    private void OnTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            timeElapsed++; // Increment the time elapsed
+            StateHasChanged(); // Refresh the UI
+        });
+    }
+
+        private void StopStopwatch()
+    {
+        if (timer != null)
+        {
+            timer.Stop(); // Stop the timer
+            ////////////// Need to save elapsed time somewhere(I think file)//////////////////
+            timeElapsed = 0;
+            Navigation.NavigateTo("/results");
+        }
+    }
+}
+
+
+@*
+<div>
+    <span>@currentElapsed</span> seconds (current time)
+</div>
+<div>
+    <span>@timeElapsed</span> seconds (total time)
+</div>
+
+<button @onclick="StartStopwatch">Start</button>
+<button @onclick="StopStopwatch">Stop</button>
+<button @onclick="ResetStopwatch">Reset</button>
+
+@code {
+    private int timeElapsed = 0;  // elapsed time in secodns
+    private int currentElapsed = 0; // time since stopwatch started
+    private System.Timers.Timer? timer; // Make timer nullable
+
+    private void StartStopwatch()
+    {
+        if (timer == null)
+        {
+            timer = new System.Timers.Timer(1000); // 1 second intervals
+            timer.Elapsed += OnTimedEvent;
+            
+        }
+        
+        timer.Start(); // starting the timer
+    }
+
+    private void StopStopwatch()
+    {
+        if (timer != null)
+        {
+            timer.Stop(); // Stop the timer
+            timeElapsed += currentElapsed; // add elapsed time to total
+            currentElapsed = 0; // reset elapsed time 
+        }
+    }
+
+    private void ResetStopwatch()
+    {
+        if (timer != null)
+        {
+            timer.Stop(); // Stop the timer
+        }
+        timeElapsed = 0; // Reset total time
+        currentElapsed = 0; // reset elapsed time 
+    }
+
+    private void OnTimedEvent(object? source, System.Timers.ElapsedEventArgs e) // Make source nullable
+    {
+        currentElapsed++; // increment current elapsed time
+        InvokeAsync(StateHasChanged); // Update UI on the main thread
+    }
+}
+*@
