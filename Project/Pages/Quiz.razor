@@ -1,0 +1,17 @@
+﻿@page "/quiz"
+@inject NavigationManager Navigation
+<PageTitle>QUIZ</PageTitle>
+
+<h1>QUIZ</h1>
+<div>
+THERE WILL BE QUESTIONS
+</div>
+<button class="btn btn-primary" @onclick="GoToResults">Submit</button>
+
+@*THIS PAGE WE CAN DO LATER*@
+@code {
+    private void GoToResults()
+    {
+        Navigation.NavigateTo("/results");
+    }
+}
