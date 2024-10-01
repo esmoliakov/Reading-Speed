@@ -1,6 +1,7 @@
 @page "/read-text"
 @inject NavigationManager Navigation
-<h3>Read text</h3> <!--Elapsed time stored in currentElapsed  -->
+@inject ReadingTimeService ReadingTimeService 
+<h3>Read text</h3>
 
 TEXT FROM FILE @*Read text from file*@
 
@@ -12,13 +13,12 @@ TEXT FROM FILE @*Read text from file*@
 
 
 @code {
- private int timeElapsed = 0;
+    private int timeElapsed = 0;
     private System.Timers.Timer timer;
 
     protected override void OnInitialized()
     {
-        // Initialize and start the timer
-        timer = new System.Timers.Timer(1000); // 1000ms = 1 second interval
+        timer = new System.Timers.Timer(1000);
         timer.Elapsed += OnTimerElapsed;
         timer.Start();
     }
@@ -27,22 +27,23 @@ TEXT FROM FILE @*Read text from file*@
     {
         InvokeAsync(() =>
         {
-            timeElapsed++; // Increment the time elapsed
-            StateHasChanged(); // Refresh the UI
+            timeElapsed++;
+            StateHasChanged();
         });
     }
 
-        private void StopStopwatch()
+    private async Task StopStopwatch()
     {
         if (timer != null)
         {
-            timer.Stop(); // Stop the timer
-            ////////////// Need to save elapsed time somewhere(I think file)//////////////////
+            timer.Stop();
+            await ReadingTimeService.AddTimeAsync(timeElapsed);  // Save time asynchronously
             timeElapsed = 0;
             Navigation.NavigateTo("/quiz");
         }
     }
 }
+
 
 
 @*

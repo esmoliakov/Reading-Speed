@@ -1,6 +1,16 @@
 @page "/results"
+@inject ReadingTimeService ReadingTimeService
 <PageTitle>Results</PageTitle>
 Print all users results from file and compare 
+
+<h2>Previous Reading Times</h2>
+<ul>
+    @foreach (var time in ReadingTimeService.GetPastTimes()) // show past 3 reading times
+    {
+        <li>@time seconds</li>
+    }
+</ul>
+
 @code{
 
     //print all users results from file
