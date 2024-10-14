@@ -1,9 +1,20 @@
 @page "/read-text"
 @inject NavigationManager Navigation
 @inject ReadingTimeService ReadingTimeService 
+@inject HttpClient HttpClient
+
 <h3>Read text</h3>
 
 TEXT FROM FILE @*Read text from file*@
+
+@if (fileContent == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p>@fileContent</p>
+}
 
 <div>
     <span>@timeElapsed</span> seconds (total time)
@@ -15,9 +26,20 @@ TEXT FROM FILE @*Read text from file*@
 @code {
     private int timeElapsed = 0;
     private System.Timers.Timer timer;
+    private string fileContent;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        try
+        {
+            // Call the API to get the file content
+            fileContent = await HttpClient.GetStringAsync("/api/files/read-text-file?fileName=sample.txt");
+        }
+        catch (Exception ex)
+        {
+            fileContent = $"Error fetching file: {ex.Message}";
+        }
+
         timer = new System.Timers.Timer(1000);
         timer.Elapsed += OnTimerElapsed;
         timer.Start();
