@@ -1,11 +1,13 @@
 using Blazored.LocalStorage;
 using System.Text.Json;
+using Shared.Models;
 
 public class ReadingTimeService
 {
     private readonly ILocalStorageService _localStorage;
     private List<int> pastTimes = new List<int>();
     private const string StorageKey = "reading_times";
+    private const string UserRecordKey = "user_record";  // Key for storing UserRecord
 
     public ReadingTimeService(ILocalStorageService localStorage)
     {
@@ -37,5 +39,22 @@ public class ReadingTimeService
     public List<int> GetPastTimes()
     {
         return new List<int>(pastTimes); // return a copy of the list
+    }
+
+    // save userRecord to local storage
+    public async Task SaveUserRecordAsync(UserRecord userRecord)
+    {
+        await _localStorage.SetItemAsync(UserRecordKey, JsonSerializer.Serialize(userRecord));
+    }
+
+    // get userRecord from local storage
+    public async Task<UserRecord?> GetUserRecordAsync()
+    {
+        var storedRecord = await _localStorage.GetItemAsync<string>(UserRecordKey);
+        if (storedRecord != null)
+        {
+            return JsonSerializer.Deserialize<UserRecord>(storedRecord);
+        }
+        return null;
     }
 }
