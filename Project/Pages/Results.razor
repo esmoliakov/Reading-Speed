@@ -1,5 +1,8 @@
 @page "/results"
+@using Shared.Models
+@using Project.Enums
 @inject ReadingTimeService ReadingTimeService
+@inject QuizScoreService QuizScoreService
 <PageTitle>Results</PageTitle>
 Print all users results from file and compare 
 
@@ -11,7 +14,24 @@ Print all users results from file and compare
     }
 </ul>
 
-@code{
+@if (userResult != null)
+{
+    <p><strong>Name:</strong> @userResult.Name</p>
+    <p><strong>Score:</strong> @userResult.QuizScore</p>
+    <p><strong>Level:</strong> @QuizScoreService.GetScoreLevel(userResult.QuizScore)</p>
+}
+else
+{
+    <p>No results available.</p>
+}
 
-    //print all users results from file
+
+@code {
+    private UserRecord userResult;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // userRecord from local storage
+        userResult = await ReadingTimeService.GetUserRecordAsync();
+    }
 }

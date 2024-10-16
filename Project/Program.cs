@@ -10,6 +10,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 builder.Services.AddBlazoredLocalStorage();  // Add  LocalStorage
 builder.Services.AddScoped<ReadingTimeService>(); 
+builder.Services.AddScoped<QuizScoreService>();
+
 
 var host = builder.Build();
 
