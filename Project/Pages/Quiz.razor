@@ -1,17 +1,64 @@
 ﻿@page "/quiz"
 @inject NavigationManager Navigation
+@inject HttpClient HttpClient
 <PageTitle>QUIZ</PageTitle>
 
 <h1>QUIZ</h1>
-<div>
-THERE WILL BE QUESTIONS
-</div>
+
+@if (questions == null)
+{
+    <p>Loading questions...</p>
+}
+else
+{
+        @foreach (var question in questions)
+        {
+            <div class="question">
+                <h4>@question.text</h4>
+                @foreach (var option in question.options)
+                {
+                    <div>
+                        @*<input type="radio" name="q-@question.Id" value="@option" /> @option*@
+                        <input type="radio" id="@option" name="q-@question.id" value="@option" 
+                                   checked="@(question.userAnswer == option)" 
+                                   @onchange="() => question.userAnswer = option" />
+                            <label for="@option">@option</label>
+                    </div>
+                }
+            </div>
+        }
+}
+
+
 <button class="btn btn-primary" @onclick="GoToResults">Submit</button>
 
-@*THIS PAGE WE CAN DO LATER*@
+
 @code {
+
+    private List<Question> questions;
+
+    protected override async Task OnInitializedAsync()
+    {
+    
+        // Fetch questions from the API
+        questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions?fileName=sampleQuestions.json");
+        
+    }
+
     private void GoToResults()
     {
+        int answerCount = 0;
+        foreach (var question in questions)
+            {
+            Console.WriteLine(question.userAnswer);
+            if(question.correctAnswer.Equals(question.userAnswer))
+                ++answerCount;
+            }
+        
+        int questionCount = questions.Count();
+        
+        Console.WriteLine("Correct answers: " + answerCount + "/" + questionCount);
+
         Navigation.NavigateTo("/results");
     }
 }
