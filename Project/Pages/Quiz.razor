@@ -1,17 +1,34 @@
 ﻿@page "/quiz"
+@using Shared.Models
 @inject NavigationManager Navigation
+@inject ReadingTimeService ReadingTimeService
+
 <PageTitle>QUIZ</PageTitle>
 
 <h1>QUIZ</h1>
 <div>
 THERE WILL BE QUESTIONS
 </div>
-<button class="btn btn-primary" @onclick="GoToResults">Submit</button>
+<div>
+    <input type="text" @bind="userName" placeholder="Enter your name" />
+</div>
+<button class="btn btn-primary" @onclick="SubmitQuiz">Submit</button>
 
 @*THIS PAGE WE CAN DO LATER*@
 @code {
-    private void GoToResults()
+    private string userName = string.Empty;
+    private UserRecord? userResult;
+
+    private async Task SubmitQuiz()
     {
+        // simluating score for test purposes
+        int quizScore = new Random().Next(0, 100);
+
+        userResult = new UserRecord(userName, quizScore);
+
+        // Save the UserRecord to local storage using ReadingTimeService
+        await ReadingTimeService.SaveUserRecordAsync(userResult);
+
         Navigation.NavigateTo("/results");
     }
 }
