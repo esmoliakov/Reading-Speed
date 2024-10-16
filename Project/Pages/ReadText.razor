@@ -5,8 +5,7 @@
 
 <h3>Read text</h3>
 
-TEXT FROM FILE @*Read text from file*@
-
+<div>
 @if (fileContent == null)
 {
     <p>Loading...</p>
@@ -15,12 +14,13 @@ else
 {
     <p>@fileContent</p>
 }
+</div>
 
 <div>
     <span>@timeElapsed</span> seconds (total time)
 </div>
-<button @onclick="StopStopwatch">Finish reading</button>
 
+<button class="btn btn-primary" @onclick="StopStopwatch">Finish reading</button>
 
 
 @code {

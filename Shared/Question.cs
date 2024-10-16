@@ -1,7 +1,8 @@
 public class Question
 {
-    public int Id { get; set; }
-    public string Text { get; set; }
-    public List<string> Options { get; set; }
-    public string CorrectAnswer { get; set; }
+    public int id { get; set; }
+    public string text { get; set; }
+    public List<string> options { get; set; }
+    public string correctAnswer { get; set; }
+    public string userAnswer { get; set; }
 }
