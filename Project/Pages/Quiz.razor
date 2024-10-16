@@ -54,25 +54,28 @@ else
 
     private async Task SubmitQuiz()
     {
-        int answerCount = 0;
+        int correctCount = 0;
         foreach (var question in questions)
             {
             Console.WriteLine(question.userAnswer);
             if(question.correctAnswer.Equals(question.userAnswer))
-                ++answerCount;
+                ++correctCount;
             }
         
         int questionCount = questions.Count();
         
-        Console.WriteLine("Correct answers: " + answerCount + "/" + questionCount);
+        Console.WriteLine("Correct answers: " + correctCount + "/" + questionCount);
 
+        double score = (double)correctCount / questionCount * 100;
         // simluating score for test purposes
-        int quizScore = new Random().Next(0, 100);
+        int quizScore = Convert.ToInt32(score);
 
         userResult = new UserRecord(userName, quizScore);
 
         // Save the UserRecord to local storage using ReadingTimeService
         await ReadingTimeService.SaveUserRecordAsync(userResult);
+
+        Console.WriteLine(userResult.QuizScore + " " + userResult.Name);
 
         Navigation.NavigateTo("/results");
     }
