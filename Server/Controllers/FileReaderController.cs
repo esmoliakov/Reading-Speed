@@ -1,5 +1,6 @@
 
 using Microsoft.AspNetCore.Mvc;
+using Server.Services;
 
 namespace Server.Controllers
 {
@@ -25,12 +26,7 @@ namespace Server.Controllers
                 return NotFound("File not found.");
             }
 
-            // Open the text file using a stream reader.
-            using StreamReader reader = new(filePath);
-
-            // Read the stream as a string.
-            string fileContent = reader.ReadToEnd();
-
+            var fileContent = FileReaderService.ReadTextFileWhole(filePath);
             return Ok(fileContent);
         }
     }
