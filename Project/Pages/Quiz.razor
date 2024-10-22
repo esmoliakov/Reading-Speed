@@ -13,21 +13,21 @@
 }
 else
 {
-        @foreach (var question in questions)
-        {
-            <div class="question">
-                <h4>@question.text</h4>
-                @foreach (var option in question.options)
-                {
-                    <div>
-                        <input type="radio" id="@option" name="q-@question.id" value="@option" 
-                                   checked="@(question.userAnswer == option)" 
-                                   @onchange="() => question.userAnswer = option" />
-                            <label for="@option">@option</label>
-                    </div>
-                }
-            </div>
-        }
+    @foreach (var question in questions)
+    {
+        <div class="question">
+            <h4>@question.text</h4>
+            @foreach (var option in question.options)
+            {
+                <div>
+                    <input type="radio" id="@option" name="q-@question.id" value="@option" 
+                    checked="@(question.userAnswer == option)" 
+                    @onchange="() => question.userAnswer = option" />
+                    <label for="@option">@option</label>
+                </div>
+            }
+        </div>
+    }
 }
 
 
@@ -43,11 +43,10 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-    
-        // Fetch questions from the API
-        questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions?fileName=sampleQuestions.json");
-        
+            // Fetch questions from the API
+            questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions?fileName=sampleQuestions.json");
     }
+
 
     private string userName = string.Empty;
     private UserRecord? userResult;

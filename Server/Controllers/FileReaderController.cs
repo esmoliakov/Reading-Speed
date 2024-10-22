@@ -19,7 +19,6 @@ namespace Server.Controllers
         {
             // Getting the filepath when files are in the "Files" folder
             var filePath = Path.Combine(_environment.ContentRootPath, "Files", fileName);
-
             if (!System.IO.File.Exists(filePath))
             {
                 return NotFound("File not found.");

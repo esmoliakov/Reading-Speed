@@ -3,15 +3,19 @@
 @using Project.Enums
 @inject ReadingTimeService ReadingTimeService
 @inject QuizScoreService QuizScoreService
+@inject HttpClient HttpClient
 <PageTitle>Results</PageTitle>
 Print all users results from file and compare 
 
 <h2>Previous Reading Times</h2>
 <ul>
-    @foreach (var time in ReadingTimeService.GetPastTimes()) // show past 3 reading times
+    @*@foreach (var time in ReadingTimeService.GetPastTimes()) // show past 3 reading times
     {
         <li>@time seconds</li>
     }
+*@
+
+        <li>@result seconds</li> @*graziau bus atvaizduota kai bus duomenu baze*@
 </ul>
 
 @if (userResult != null)
@@ -28,10 +32,11 @@ else
 
 @code {
     private UserRecord userResult;
+    private string result;
 
     protected override async Task OnInitializedAsync()
     {
         // userRecord from local storage
-        userResult = await ReadingTimeService.GetUserRecordAsync();
+        result = await HttpClient.GetStringAsync("/api/files/read-text-file?fileName=stopwatch.txt");
     }
 }

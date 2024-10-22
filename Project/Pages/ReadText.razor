@@ -16,12 +16,8 @@ else
 }
 </div>
 
-<div>
-    <span>@timeElapsed</span> seconds (total time)
-</div>
 
 <button class="btn btn-primary" @onclick="StopStopwatch">Finish reading</button>
-
 
 @code {
     private int timeElapsed = 0;
@@ -40,87 +36,25 @@ else
             fileContent = $"Error fetching file: {ex.Message}";
         }
 
-        timer = new System.Timers.Timer(1000);
-        timer.Elapsed += OnTimerElapsed;
-        timer.Start();
+        // Start the stopwatch on initialization
+        await StartStopwatch();
+
+        // Set up the timer for UI updates
+
     }
 
-    private void OnTimerElapsed(object sender, System.Timers.ElapsedEventArgs e)
+    private async Task StartStopwatch()
     {
-        InvokeAsync(() =>
-        {
-            timeElapsed++;
-            StateHasChanged();
-        });
+        await HttpClient.GetAsync("api/timer/start");
     }
 
     private async Task StopStopwatch()
     {
-        if (timer != null)
-        {
-            timer.Stop();
-            await ReadingTimeService.AddTimeAsync(timeElapsed);  // Save time asynchronously
-            timeElapsed = 0;
+        await HttpClient.GetAsync("api/timer/stop");
+    
+            // Navigate to the next page
             Navigation.NavigateTo("/quiz");
-        }
-    }
-}
-
-
-
-@*
-<div>
-    <span>@currentElapsed</span> seconds (current time)
-</div>
-<div>
-    <span>@timeElapsed</span> seconds (total time)
-</div>
-
-<button @onclick="StartStopwatch">Start</button>
-<button @onclick="StopStopwatch">Stop</button>
-<button @onclick="ResetStopwatch">Reset</button>
-
-@code {
-    private int timeElapsed = 0;  // elapsed time in secodns
-    private int currentElapsed = 0; // time since stopwatch started
-    private System.Timers.Timer? timer; // Make timer nullable
-
-    private void StartStopwatch()
-    {
-        if (timer == null)
-        {
-            timer = new System.Timers.Timer(1000); // 1 second intervals
-            timer.Elapsed += OnTimedEvent;
-            
-        }
         
-        timer.Start(); // starting the timer
     }
 
-    private void StopStopwatch()
-    {
-        if (timer != null)
-        {
-            timer.Stop(); // Stop the timer
-            timeElapsed += currentElapsed; // add elapsed time to total
-            currentElapsed = 0; // reset elapsed time 
-        }
-    }
-
-    private void ResetStopwatch()
-    {
-        if (timer != null)
-        {
-            timer.Stop(); // Stop the timer
-        }
-        timeElapsed = 0; // Reset total time
-        currentElapsed = 0; // reset elapsed time 
-    }
-
-    private void OnTimedEvent(object? source, System.Timers.ElapsedEventArgs e) // Make source nullable
-    {
-        currentElapsed++; // increment current elapsed time
-        InvokeAsync(StateHasChanged); // Update UI on the main thread
-    }
 }
-*@
