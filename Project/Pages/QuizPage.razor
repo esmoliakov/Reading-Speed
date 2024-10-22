@@ -50,7 +50,7 @@ else
         _quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions?fileName=sampleQuestions.json");
         
     }
-    
+
     private string userName = string.Empty;
 
     private async Task SubmitQuiz()

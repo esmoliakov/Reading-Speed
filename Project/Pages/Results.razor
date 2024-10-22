@@ -11,10 +11,13 @@ Print all users results from file and compare
 
 <h2>Previous Reading Times</h2>
 <ul>
-    @foreach (var time in ReadingTimeService.GetPastTimes()) // show past 3 reading times
+    @*@foreach (var time in ReadingTimeService.GetPastTimes()) // show past 3 reading times
     {
         <li>@time seconds</li>
     }
+*@
+
+        <li>@result seconds</li> @*graziau bus atvaizduota kai bus duomenu baze*@
 </ul>
 
 @if (userResult != null)
@@ -31,14 +34,18 @@ else
 
 @code {
     private UserRecord userResult;
+    private string result;
 
     protected override async Task OnInitializedAsync()
     {
-        var result = await HttpClient.GetStringAsync("/api/files/read-text-file?filename=UserRecord.json");
+        var quizResult = await HttpClient.GetStringAsync("/api/files/read-text-file?filename=UserRecord.json");
         // userRecord from file
-        if (result != null)
+        if (quizResult != null)
         {
-            userResult = JsonSerializer.Deserialize<UserRecord>(result);
+            userResult = JsonSerializer.Deserialize<UserRecord>(quizResult);
         }
+        
+        // reading time from file
+        result = await HttpClient.GetStringAsync("/api/files/read-text-file?fileName=stopwatch.txt");
     }
 }
