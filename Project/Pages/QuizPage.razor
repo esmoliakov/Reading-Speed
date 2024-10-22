@@ -1,4 +1,6 @@
 ﻿@page "/quiz"
+@using System.Text
+@using System.Text.Json
 @using Shared.Models
 @inject NavigationManager Navigation
 @inject HttpClient HttpClient
@@ -7,13 +9,13 @@
 
 <h1>QUIZ</h1>
 
-@if (questions == null)
+@if (_quizSubmission.Questions == null)
 {
     <p>Loading questions...</p>
 }
 else
 {
-        @foreach (var question in questions)
+        @foreach (var question in _quizSubmission.Questions)
         {
             <div class="question">
                 <h4>@question.text</h4>
@@ -39,44 +41,26 @@ else
 
 @code {
 
-    private List<Question> questions;
+    QuizSubmission _quizSubmission = new QuizSubmission();
 
     protected override async Task OnInitializedAsync()
     {
     
         // Fetch questions from the API
-        questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions?fileName=sampleQuestions.json");
+        _quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions?fileName=sampleQuestions.json");
         
     }
-
+    
     private string userName = string.Empty;
-    private UserRecord? userResult;
 
     private async Task SubmitQuiz()
     {
-        int correctCount = 0;
-        foreach (var question in questions)
-            {
-            Console.WriteLine(question.userAnswer);
-            if(question.correctAnswer.Equals(question.userAnswer))
-                ++correctCount;
-            }
+        _quizSubmission.Filename = "UserRecord.json";
+        _quizSubmission.UserName = userName;
         
-        int questionCount = questions.Count();
+        var content = new StringContent(JsonSerializer.Serialize(_quizSubmission), Encoding.UTF8, "application/json");
+        var response = await HttpClient.PostAsync("/api/quiz/save-score", content);
         
-        Console.WriteLine("Correct answers: " + correctCount + "/" + questionCount);
-
-        double score = (double)correctCount / questionCount * 100;
-        // simluating score for test purposes
-        int quizScore = Convert.ToInt32(score);
-
-        userResult = new UserRecord(userName, quizScore);
-
-        // Save the UserRecord to local storage using ReadingTimeService
-        await ReadingTimeService.SaveUserRecordAsync(userResult);
-
-        Console.WriteLine(userResult.QuizScore + " " + userResult.Name);
-
         Navigation.NavigateTo("/results");
     }
 }

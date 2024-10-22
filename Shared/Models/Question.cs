@@ -1,3 +1,4 @@
+namespace Shared.Models;
 public class Question
 {
     public int id { get; set; }

@@ -10,7 +10,7 @@ namespace Server.Services
             if (System.IO.File.Exists(filePath))
             {
                 // Open the text file using a stream reader.
-                using StreamReader reader = new(filePath);
+                using StreamReader reader = new StreamReader(filePath);
 
                 // Read the stream as a string.
                 fileContent = reader.ReadToEnd();
