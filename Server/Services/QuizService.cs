@@ -1,10 +1,13 @@
 using Shared.Models;
+using System.Linq;
+using System.Collections;
+using Server.Extensions;
 
 namespace Server.Services;
 
 public class QuizService
 {
-    public static int CorrectAnswers(List<Question> questions)
+    /*public static int CorrectAnswers(List<Question> questions)
     {
         int correctAnswers = 0;
         foreach (var question in questions)
@@ -23,5 +26,33 @@ public class QuizService
         double score = (double)correctCount / questionCount * 100;
         int resultScore = (int)Math.Round(score);
         return resultScore;
+    }
+    */
+    //using arraylist to illustrate boxing and unboxing
+    private static ArrayList scoreList = new ArrayList();
+    public static int QuizScore(List<Question> questions)
+    {
+        //using linq to count correct answers
+        var correctCount = questions.Count(q => q.correctAnswer.Equals(q.userAnswer));
+        var questionCount = questions.Count;
+
+        //calculate score
+        double score = (double)correctCount / questionCount * 100;
+        int finalScore = (int)Math.Round(score);
+        scoreList.Add(finalScore); // boxing
+        return finalScore;
+    }
+    public static void printScores()
+    {
+        foreach (object score in scoreList)
+        {
+            int unboxedScore = (int)score; //unboxing
+            Console.WriteLine(unboxedScore);
+        }
+    }
+    // New method to get scores as a List<int> using the extension method
+    public static List<int> GetScoresAsList()
+    {
+        return scoreList.ToIntList();
     }
 }
