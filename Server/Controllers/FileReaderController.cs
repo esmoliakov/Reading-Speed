@@ -16,8 +16,14 @@ namespace Server.Controllers
         }
 
         [HttpGet("read-text-file")]
-        public IActionResult ReadTextFile(string fileName)
+        public IActionResult ReadTextFile(string fileName = "random")
         {
+            if (fileName.Equals("random"))
+            {
+                Random rnd = new Random();
+                int textId = rnd.Next(1, 4);
+                fileName = $"{textId}_text.txt";
+            }
             // Getting the filepath when files are in the "Files" folder
             var filePath = Path.Combine(_environment.ContentRootPath, "Files", fileName);
             if (!System.IO.File.Exists(filePath))

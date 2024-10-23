@@ -29,7 +29,7 @@ public class QuizController : ControllerBase
         
         var filePath = Path.Combine(_environment.ContentRootPath, "Files", quizSubmission.Filename);
         
-        UserDataService.SaveUserRecord(quizSubmission.UserName, quizScore, filePath);
+        UserDataService.SaveUserRecord(quizScore: quizScore, username: quizSubmission.UserName, filePath: filePath);
         
         return Ok();
     }
