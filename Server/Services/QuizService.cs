@@ -1,5 +1,6 @@
 using Shared.Models;
 using System.Linq;
+using System.Collections;
 
 namespace Server.Services;
 
@@ -26,6 +27,8 @@ public class QuizService
         return resultScore;
     }
     */
+    //using arraylist to illustrate boxing and unboxing
+    private static ArrayList scoreList = new ArrayList();
     public static int QuizScore(List<Question> questions)
     {
         //using linq to count correct answers
@@ -34,6 +37,16 @@ public class QuizService
 
         //calculate score
         double score = (double)correctCount / questionCount * 100;
-        return (int)Math.Round(score);
+        int finalScore = (int)Math.Round(score);
+        scoreList.Add(finalScore); // boxing
+        return finalScore;
+    }
+    public static void printScores()
+    {
+        foreach (object score in scoreList)
+        {
+            int unboxedScore = (int)score; //unboxing
+            Console.WriteLine(unboxedScore);
+        }
     }
 }
