@@ -1,6 +1,7 @@
 using Shared.Models;
 using System.Linq;
 using System.Collections;
+using Server.Extensions;
 
 namespace Server.Services;
 
@@ -48,5 +49,10 @@ public class QuizService
             int unboxedScore = (int)score; //unboxing
             Console.WriteLine(unboxedScore);
         }
+    }
+    // New method to get scores as a List<int> using the extension method
+    public static List<int> GetScoresAsList()
+    {
+        return scoreList.ToIntList();
     }
 }
