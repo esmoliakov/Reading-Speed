@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Server.Services;
 using System.Diagnostics;
 using System.Threading.Tasks;
 
@@ -31,14 +32,10 @@ public class TimerController : ControllerBase
             {
                 return NotFound("Questions file not found.");
             }
-            
-
-            using StreamWriter writer = new(filePath, append:true);
-
-            // Read the questions from the JSON file
-            writer.WriteLine(elapsedMilliseconds);
+            TimerServices.WriteTimeToFile(elapsedMilliseconds,filePath);
             return Ok();
     }
+
     [HttpGet("stop")]
     public async Task<IActionResult> StopTimer()
     {
@@ -64,20 +61,9 @@ public class TimerController : ControllerBase
             {
                 return NotFound("File not found.");
             }
-
-            // Open the text file using a stream reader.
-            using StreamReader reader = new(filePath);
-
-            string fileContent = "";
-            string bestTime = reader.ReadLine();
-            while((fileContent = reader.ReadLine()) != null)
-            {
-                if(int.Parse(fileContent) < int.Parse(bestTime))
-                {
-                    bestTime = fileContent;
-                }
-            }
-
-            return Ok(bestTime);
+            var fileContent = TimerServices.FindBestReadingTime(filePath);
+            
+            return Ok(fileContent);
+            
         }
 }
