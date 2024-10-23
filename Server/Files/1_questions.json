@@ -1,0 +1,90 @@
+[
+  {
+    "id": 1,
+    "text": "What is the primary role of bees in agriculture?",
+    "options": [
+      "Producing honey for farmers",
+      "Pollinating plants to help them reproduce",
+      "Spreading seeds to different areas",
+      "Protecting crops from pests"
+    ],
+    "correctAnswer": "Pollinating plants to help them reproduce"
+  },
+  {
+    "id": 2,
+    "text": "Which factor is NOT mentioned as a cause of bee population decline?",
+    "options": [
+      "Habitat loss",
+      "Pesticide use",
+      "Climate change",
+      "Overfarming"
+    ],
+    "correctAnswer": "Overfarming"
+  },
+  {
+    "id": 3,
+    "text": "Why is the health of bees important for global food security?",
+    "options": [
+      "They help grow crops that people rely on",
+      "They protect farms from harmful insects",
+      "They are a source of food themselves",
+      "They increase the price of agricultural products"
+    ],
+    "correctAnswer": "They help grow crops that people rely on"
+  },
+  {
+    "id": 4,
+    "text": "What type of crops are most affected by the decline in bee populations?",
+    "options": [
+      "Grains like wheat and corn",
+      "Fruits and vegetables like apples and blueberries",
+      "Root vegetables like potatoes and carrots",
+      "Nuts like peanuts"
+    ],
+    "correctAnswer": "Fruits and vegetables like apples and blueberries"
+  },
+  {
+    "id": 5,
+    "text": "What are scientists and farmers doing to help protect bee populations?",
+    "options": [
+      "Increasing pesticide use",
+      "Creating bee-friendly environments",
+      "Importing more bees",
+      "Building artificial hives in cities"
+    ],
+    "correctAnswer": "Creating bee-friendly environments"
+  },
+  {
+    "id": 6,
+    "text": "What might happen to agriculture if bee populations continue to decline?",
+    "options": [
+      "Crop yields will decrease",
+      "More varieties of crops will grow",
+      "Farmers will rely more on artificial pollination",
+      "Food prices will drop"
+    ],
+    "correctAnswer": "Crop yields will decrease"
+  },
+  {
+    "id": 7,
+    "text": "What process do bees assist with when moving pollen from one flower to another?",
+    "options": [
+      "Germination",
+      "Photosynthesis",
+      "Pollination",
+      "Fertilization"
+    ],
+    "correctAnswer": "Pollination"
+  },
+  {
+    "id": 8,
+    "text": "Which of the following actions is part of protecting bees?",
+    "options": [
+      "Using stronger chemicals to fight pests",
+      "Planting more flowering plants",
+      "Encouraging bees to migrate to cities",
+      "Reducing air pollution in farming areas"
+    ],
+    "correctAnswer": "Planting more flowering plants"
+  }
+]
