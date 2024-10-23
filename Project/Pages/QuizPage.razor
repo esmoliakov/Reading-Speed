@@ -47,8 +47,11 @@ else
     {
     
         // Fetch questions from the API
-        _quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions?fileName=sampleQuestions.json");
+        // Get sorted questions
+        _quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions/get-questions-sorted?fileName=sampleQuestions.json");
         
+        // Get unsorted questions
+        //_quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions/get-questions?fileName=sampleQuestions.json");
     }
 
     private string userName = string.Empty;
