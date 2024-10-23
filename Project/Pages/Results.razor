@@ -10,15 +10,24 @@
 Print all users results from file and compare 
 
 <h2>Previous Reading Times</h2>
-<ul>
-    @*@foreach (var time in ReadingTimeService.GetPastTimes()) // show past 3 reading times
+@*<ul>
+    @foreach (var time in ReadingTimeService.GetPastTimes()) // show past 3 reading times
     {
         <li>@time seconds</li>
     }
-*@
+</ul>*@
+<div>
+@if (result == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p><strong>Your best time in Milliseconds:</strong> @result </p>
 
-        <li>@result seconds</li> @*graziau bus atvaizduota kai bus duomenu baze*@
-</ul>
+    <p><strong>Your time Milliseconds:</strong> @lastResult </p>
+}
+</div>
 
 @if (userResult != null)
 {
@@ -35,17 +44,25 @@ else
 @code {
     private UserRecord userResult;
     private string result;
+    private string lastResult;
 
     protected override async Task OnInitializedAsync()
     {
+
         var quizResult = await HttpClient.GetStringAsync("/api/files/read-text-file?filename=UserRecord.json");
         // userRecord from file
         if (quizResult != null)
         {
             userResult = JsonSerializer.Deserialize<UserRecord>(quizResult);
         }
-        
-        // reading time from file
-        result = await HttpClient.GetStringAsync("/api/files/read-text-file?fileName=stopwatch.txt");
+        // results from file
+        try{
+            result = await HttpClient.GetStringAsync("/api/timer/read-text-file-find-best-time?fileName=stopwatch.txt");
+            lastResult = await HttpClient.GetStringAsync("/api/files/read-last-line?fileName=stopwatch.txt");
+        }
+        catch (Exception ex)
+        {
+            result = $"Error fetching file: {ex.Message}";
+        }
     }
 }
