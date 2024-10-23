@@ -36,7 +36,7 @@ public class TimerController : ControllerBase
             using StreamWriter writer = new(filePath, append:true);
 
             // Read the questions from the JSON file
-            writer.WriteLine(elapsedMilliseconds/1000);
+            writer.WriteLine(elapsedMilliseconds);
             return Ok();
     }
     [HttpGet("stop")]
@@ -54,8 +54,8 @@ public class TimerController : ControllerBase
         }
         return BadRequest("Stopwatch is not running.");
     }
-    
-        [HttpGet("read-text-file")]
+
+        [HttpGet("read-text-file-find-best-time")]
         public IActionResult ReadTextFile(string fileName)
         {
             // Getting the filepath when files are in the "Files" folder
@@ -68,9 +68,16 @@ public class TimerController : ControllerBase
             // Open the text file using a stream reader.
             using StreamReader reader = new(filePath);
 
-            // Read the stream as a string.
-            string fileContent = reader.ReadToEnd();
+            string fileContent = "";
+            string bestTime = "0";
+            while((fileContent = reader.ReadLine()) != null)
+            {
+                if(int.Parse(fileContent) > int.Parse(bestTime))
+                {
+                    bestTime = fileContent;
+                }
+            }
 
-            return Ok(fileContent);
+            return Ok(bestTime);
         }
 }
