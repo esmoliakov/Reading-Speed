@@ -1,0 +1,66 @@
+﻿@page "/quiz"
+@using System.Text
+@using System.Text.Json
+@using Shared.Models
+@inject NavigationManager Navigation
+@inject HttpClient HttpClient
+@inject ReadingTimeService ReadingTimeService
+<PageTitle>QUIZ</PageTitle>
+
+<h1>QUIZ</h1>
+
+@if (_quizSubmission.Questions == null)
+{
+    <p>Loading questions...</p>
+}
+else
+{
+        @foreach (var question in _quizSubmission.Questions)
+        {
+            <div class="question">
+                <h4>@question.text</h4>
+                @foreach (var option in question.options)
+                {
+                    <div>
+                        <input type="radio" id="@option" name="q-@question.id" value="@option" 
+                                   checked="@(question.userAnswer == option)" 
+                                   @onchange="() => question.userAnswer = option" />
+                            <label for="@option">@option</label>
+                    </div>
+                }
+            </div>
+        }
+}
+
+
+<div>
+    <input type="text" @bind="userName" placeholder="Enter your name" />
+</div>
+<button class="btn btn-primary" @onclick="SubmitQuiz">Submit</button>
+
+
+@code {
+
+    QuizSubmission _quizSubmission = new QuizSubmission();
+
+    protected override async Task OnInitializedAsync()
+    {
+    
+        // Fetch questions from the API
+        _quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions?fileName=sampleQuestions.json");
+        
+    }
+
+    private string userName = string.Empty;
+
+    private async Task SubmitQuiz()
+    {
+        _quizSubmission.Filename = "UserRecord.json";
+        _quizSubmission.UserName = userName;
+        
+        var content = new StringContent(JsonSerializer.Serialize(_quizSubmission), Encoding.UTF8, "application/json");
+        var response = await HttpClient.PostAsync("/api/quiz/save-score", content);
+        
+        Navigation.NavigateTo("/results");
+    }
+}

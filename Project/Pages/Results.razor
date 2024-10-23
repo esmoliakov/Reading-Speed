@@ -1,9 +1,11 @@
 @page "/results"
+@using System.Text.Json
 @using Shared.Models
 @using Project.Enums
 @inject ReadingTimeService ReadingTimeService
 @inject QuizScoreService QuizScoreService
 @inject HttpClient HttpClient
+
 <PageTitle>Results</PageTitle>
 Print all users results from file and compare 
 
@@ -46,9 +48,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        // userRecord from local storage
-        userResult = await ReadingTimeService.GetUserRecordAsync();
-        
+
+        var quizResult = await HttpClient.GetStringAsync("/api/files/read-text-file?filename=UserRecord.json");
+        // userRecord from file
+        if (quizResult != null)
+        {
+            userResult = JsonSerializer.Deserialize<UserRecord>(quizResult);
+        }
+        // results from file
         try{
             result = await HttpClient.GetStringAsync("/api/timer/read-text-file-find-best-time?fileName=stopwatch.txt");
             lastResult = await HttpClient.GetStringAsync("/api/files/read-last-line?fileName=stopwatch.txt");
@@ -57,7 +64,5 @@ else
         {
             result = $"Error fetching file: {ex.Message}";
         }
-
-        
     }
 }
