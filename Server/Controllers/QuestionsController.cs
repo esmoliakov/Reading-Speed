@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Models;
 
 namespace Server.Controllers
 {
