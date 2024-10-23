@@ -56,7 +56,7 @@ public class TimerController : ControllerBase
     }
 
         [HttpGet("read-text-file-find-best-time")]
-        public IActionResult ReadTextFile(string fileName)
+        public IActionResult FindBestTime(string fileName)
         {
             // Getting the filepath when files are in the "Files" folder
             var filePath = Path.Combine(_environment.ContentRootPath, "Files", fileName);
@@ -69,10 +69,10 @@ public class TimerController : ControllerBase
             using StreamReader reader = new(filePath);
 
             string fileContent = "";
-            string bestTime = "0";
+            string bestTime = reader.ReadLine();
             while((fileContent = reader.ReadLine()) != null)
             {
-                if(int.Parse(fileContent) > int.Parse(bestTime))
+                if(int.Parse(fileContent) < int.Parse(bestTime))
                 {
                     bestTime = fileContent;
                 }
