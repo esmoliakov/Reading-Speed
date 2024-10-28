@@ -42,18 +42,18 @@ public class ReadingTimeService
     }
 
     // save userRecord to local storage
-    public async Task SaveUserRecordAsync(UserRecord userRecord)
+    public async Task SaveUserRecordAsync(AttemptRecord userRecord)
     {
         await _localStorage.SetItemAsync(UserRecordKey, JsonSerializer.Serialize(userRecord));
     }
 
     // get userRecord from local storage
-    public async Task<UserRecord?> GetUserRecordAsync()
+    public async Task<AttemptRecord?> GetUserRecordAsync()
     {
         var storedRecord = await _localStorage.GetItemAsync<string>(UserRecordKey);
         if (storedRecord != null)
         {
-            return JsonSerializer.Deserialize<UserRecord>(storedRecord);
+            return JsonSerializer.Deserialize<AttemptRecord>(storedRecord);
         }
         return null;
     }

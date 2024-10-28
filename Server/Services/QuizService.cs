@@ -7,27 +7,6 @@ namespace Server.Services;
 
 public class QuizService
 {
-    /*public static int CorrectAnswers(List<Question> questions)
-    {
-        int correctAnswers = 0;
-        foreach (var question in questions)
-        {
-            //Console.WriteLine(question.userAnswer);
-            if(question.correctAnswer.Equals(question.userAnswer))
-                ++correctAnswers;
-        }
-        return correctAnswers;
-    }
-
-    public static int QuizScore(List<Question> questions)
-    {
-        var correctCount = CorrectAnswers(questions);
-        var questionCount = questions.Count;
-        double score = (double)correctCount / questionCount * 100;
-        int resultScore = (int)Math.Round(score);
-        return resultScore;
-    }
-    */
     //using arraylist to illustrate boxing and unboxing
     private static ArrayList scoreList = new ArrayList();
     public static int QuizScore(List<Question> questions)
@@ -37,10 +16,12 @@ public class QuizService
         var questionCount = questions.Count;
 
         //calculate score
-        double score = (double)correctCount / questionCount * 100;
-        int finalScore = (int)Math.Round(score);
-        scoreList.Add(finalScore); // boxing
-        return finalScore;
+        // Calculate score and round it to the nearest integer
+        int score = (int)Math.Round((double)correctCount / questionCount * 100); // Convert to int directly
+
+        scoreList.Add(score); // Store as an integer directly
+
+        return score; // Return the score as int
     }
     public static void printScores()
     {
@@ -53,6 +34,6 @@ public class QuizService
     // New method to get scores as a List<int> using the extension method
     public static List<int> GetScoresAsList()
     {
-        return scoreList.ToIntList();
+        return scoreList.ToIntList(); // use this
     }
 }

@@ -1,4 +1,4 @@
 namespace Shared.Models
 {
-    public record UserRecord(string Name, int QuizScore);
+    public record AttemptRecord(string Name, int QuizScore);
 }

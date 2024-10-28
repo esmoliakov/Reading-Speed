@@ -38,10 +38,16 @@ else
 </div>
 <button class="btn btn-primary" @onclick="SubmitQuiz">Submit</button>
 
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
 
 @code {
 
     QuizSubmission _quizSubmission = new QuizSubmission();
+    private string userName = string.Empty;
+    private string errorMessage; // Variable to hold error message
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,7 +57,7 @@ else
         
     }
 
-    private string userName = string.Empty;
+
 
     private async Task SubmitQuiz()
     {
@@ -60,6 +66,13 @@ else
         
         var content = new StringContent(JsonSerializer.Serialize(_quizSubmission), Encoding.UTF8, "application/json");
         var response = await HttpClient.PostAsync("/api/quiz/save-score", content);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            errorMessage = await response.Content.ReadAsStringAsync(); // Read error message from response
+            Console.WriteLine($"Warning: {errorMessage}"); // Log warning in the console
+            return; // Early return to prevent navigation on error
+        }
         
         Navigation.NavigateTo("/results");
     }

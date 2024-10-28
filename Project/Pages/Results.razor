@@ -42,7 +42,7 @@ else
 
 
 @code {
-    private UserRecord userResult;
+    private AttemptRecord userResult;
     private string result;
     private string lastResult;
 
@@ -53,7 +53,7 @@ else
         // userRecord from file
         if (quizResult != null)
         {
-            userResult = JsonSerializer.Deserialize<UserRecord>(quizResult);
+            userResult = JsonSerializer.Deserialize<AttemptRecord>(quizResult);
         }
         // results from file
         try{
