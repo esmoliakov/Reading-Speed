@@ -1,11 +1,11 @@
 namespace Shared.Models
 {
-    public struct WordCount
+    public struct ParagraphWordCount
     {
         public int Count { get; }
         public string TextId { get; }
 
-        public WordCount(int count, string textId)
+        public ParagraphWordCount(int count, string textId)
         {
             Count = count;
             TextId = textId;
