@@ -54,7 +54,7 @@ else
     
         // Fetch questions from the API
         // Get sorted questions
-        _quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions/get-questions-sorted?fileName=sampleQuestions.json");
+        _quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions/get-questions-sorted");
         
         // Get unsorted questions
         //_quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions/get-questions?fileName=sampleQuestions.json");

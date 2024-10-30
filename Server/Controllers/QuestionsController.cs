@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using Server.Services;
 using Shared.Models;
 
 namespace Server.Controllers
@@ -37,10 +38,16 @@ namespace Server.Controllers
         }
         
         [HttpGet("get-questions-sorted")]
-        public IActionResult GetQuestionsSorted(string fileName)
+        public IActionResult GetQuestionsSorted(string fileName="random")
         {
+            if (fileName.Equals("random"))
+            {
+                string fileId =
+                    FileReaderService.ReadTextFileWhole(Path.Combine(_environment.ContentRootPath, "Files",
+                        "paragraphId.txt")).Trim();
+                fileName = $"{fileId}_questions.json";
+            }
             var filePath = Path.Combine(_environment.ContentRootPath, "Files", fileName);
-
             if (!System.IO.File.Exists(filePath))
             {
                 return NotFound("Questions file not found.");
