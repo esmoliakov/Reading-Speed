@@ -29,12 +29,13 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        string textId = "1_text.txt";
         try
         {
             // Call the API to get the file content
-            fileContent = await HttpClient.GetStringAsync("/api/files/read-text-file?fileName=1_text.txt");
-            ParagraphWordCount = new ParagraphWordCount(CountWords(fileContent), textId); //calculate and store word count
+            fileContent = await HttpClient.GetStringAsync("/api/files/read-text-file");
+            var textId = await HttpClient.GetStringAsync("api/files/get-paragrapgh-id");
+            String filename = $"{textId.Trim()}_text.txt";
+            ParagraphWordCount = new ParagraphWordCount(CountWords(fileContent), filename); //calculate and store word count
         }
         catch (Exception ex)
         {
