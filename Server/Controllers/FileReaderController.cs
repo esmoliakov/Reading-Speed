@@ -49,5 +49,20 @@ namespace Server.Controllers
             
             return Ok(fileContent);
         }
+        
+        [HttpGet("get-paragrapgh-id")]
+        public IActionResult GetParagrapghId()
+        {
+            // Getting the filepath when files are in the "Files" folder
+            var filePath = Path.Combine(_environment.ContentRootPath, "Files", "paragraphId.txt");
+            if (!System.IO.File.Exists(filePath))
+            {
+                return NotFound("File not found.");
+            }
+            var fileContent = FileReaderService.ReadTextLastLine(filePath);
+            
+            return Ok(fileContent);
+        }
+        
     }
 } 
