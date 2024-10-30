@@ -43,23 +43,9 @@ namespace Server.Controllers
             {
                 return NotFound("File not found.");
             }
-
-            // Open the text file using a stream reader.
-            using StreamReader reader = new(filePath);
-            string lastLine = null;
-            string currentLine;
+            var fileContent = FileReaderService.ReadTextLastLine(filePath);
             
-            while ((currentLine = reader.ReadLine()) != null)
-            {
-                lastLine = currentLine; // Keep updating the last line
-            }
-
-            if (lastLine == null)
-            {
-                Console.WriteLine("File is empty.");
-            }
-
-            return Ok(lastLine);
+            return Ok(fileContent);
         }
     }
 } 

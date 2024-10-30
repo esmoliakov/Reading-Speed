@@ -14,7 +14,7 @@
 else
 {
     <p>@fileContent</p>
-    <p>@wordCount.ToString()</p> // wordCount and textId
+    <p>@ParagraphWordCount.ToString()</p>
 }
 </div>
 
@@ -25,7 +25,7 @@ else
     private int timeElapsed = 0;
     private System.Timers.Timer timer;
     private string fileContent = string.Empty;
-    private WordCount wordCount;
+    private ParagraphWordCount ParagraphWordCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -33,8 +33,8 @@ else
         try
         {
             // Call the API to get the file content
-            fileContent = await HttpClient.GetStringAsync("/api/files/read-text-file");
-            wordCount = new WordCount(CountWords(fileContent), textId); //calculate and store word count
+            fileContent = await HttpClient.GetStringAsync("/api/files/read-text-file?fileName=1_text.txt");
+            ParagraphWordCount = new ParagraphWordCount(CountWords(fileContent), textId); //calculate and store word count
         }
         catch (Exception ex)
         {
