@@ -15,6 +15,11 @@ public class UserController : ControllerBase
             UserDataService.SaveUserRecord(username, quizScore, filePath);
             return Ok("User record saved successfully.");
         }
+        catch (UserAlreadyExistsException ex)
+        {
+            Logger.LogException(ex, "path_to_log_file.log");
+            return BadRequest(ex.Message); // Return 400 Bad Request with the error message
+        }
         catch (EmptyNameException ex)
         {
             // Log the exception
