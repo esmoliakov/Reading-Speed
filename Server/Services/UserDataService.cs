@@ -26,4 +26,9 @@ public class UserDataService
         using StreamWriter streamWriter = new StreamWriter(filePath);
         streamWriter.Write(JsonSerializer.Serialize(userRecord));
     }
+    public static void ClearUserRecords()
+    {
+        userRecords.Clear();
+    }
+
 }

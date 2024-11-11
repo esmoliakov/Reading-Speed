@@ -42,7 +42,7 @@ else
     <p>No results available.</p>
 }
 
-
+<button class="btn btn-danger" @onclick="ResetData">Reset Data</button>
 @code {
     private AttemptRecord userResult;
     private string result;
@@ -64,11 +64,22 @@ else
         // Calculate WPM
         wpm = CalculateWPM(elapsedTime, wordCount);
 
-        var quizResult = await HttpClient.GetStringAsync("/api/files/read-text-file?filename=UserRecord.json");
-        // userRecord from file
-        if (quizResult != null)
+        try
         {
-            userResult = JsonSerializer.Deserialize<AttemptRecord>(quizResult);
+            // Fetch user result data
+            var quizResult = await HttpClient.GetStringAsync("/api/files/read-text-file?filename=UserRecord.json");
+            if (!string.IsNullOrEmpty(quizResult))
+            {
+                userResult = JsonSerializer.Deserialize<AttemptRecord>(quizResult);
+            }
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            Console.WriteLine("User record file not found.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error fetching user result: {ex.Message}");
         }
         // results from file
         try{
@@ -85,5 +96,17 @@ else
         if (elapsedMilliseconds == 0 || wordCount == 0) return 0; // Avoid division by zero
         double elapsedMinutes = elapsedMilliseconds / 60000.0; // Convert milliseconds to minutes
         return Math.Round(wordCount / elapsedMinutes); // Calculate WPM
+    }
+    private async Task ResetData()
+    {
+        var response = await HttpClient.PostAsync("/api/user/reset", null);
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/results", true); // Refresh the page
+        }
+        else
+        {
+            Console.WriteLine("Error resetting data");
+        }
     }
 }
