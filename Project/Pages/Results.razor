@@ -1,4 +1,5 @@
 @page "/results"
+@inject NavigationManager Navigation
 @using System.Text.Json
 @using Shared.Models
 @using Project.Enums
@@ -34,26 +35,51 @@ else
     <p><strong>Name:</strong> @userResult.Name</p>
     <p><strong>Score:</strong> @userResult.QuizScore</p>
     <p><strong>Level:</strong> @QuizScoreService.GetScoreLevel(userResult.QuizScore)</p>
+    <p><strong>Your WPM:</strong> @wpm</p>
 }
 else
 {
     <p>No results available.</p>
 }
 
-
+<button class="btn btn-danger" @onclick="ResetData">Reset Data</button>
 @code {
     private AttemptRecord userResult;
     private string result;
     private string lastResult;
+    private int elapsedTime;
+    private int wordCount;
+    private double wpm;
 
     protected override async Task OnInitializedAsync()
     {
+        // Get query parameters
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        
+        // Retrieve elapsed time and word count from query parameters
+        elapsedTime = int.TryParse(query["elapsedTime"], out var time) ? time : 0;
+        wordCount = int.TryParse(query["wordCount"], out var count) ? count : 0;
 
-        var quizResult = await HttpClient.GetStringAsync("/api/files/read-text-file?filename=UserRecord.json");
-        // userRecord from file
-        if (quizResult != null)
+        // Calculate WPM
+        wpm = CalculateWPM(elapsedTime, wordCount);
+
+        try
         {
-            userResult = JsonSerializer.Deserialize<AttemptRecord>(quizResult);
+            // Fetch user result data
+            var quizResult = await HttpClient.GetStringAsync("/api/files/read-text-file?filename=UserRecord.json");
+            if (!string.IsNullOrEmpty(quizResult))
+            {
+                userResult = JsonSerializer.Deserialize<AttemptRecord>(quizResult);
+            }
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        {
+            Console.WriteLine("User record file not found.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error fetching user result: {ex.Message}");
         }
         // results from file
         try{
@@ -63,6 +89,24 @@ else
         catch (Exception ex)
         {
             result = $"Error fetching file: {ex.Message}";
+        }
+    }
+    private double CalculateWPM(int elapsedMilliseconds, int wordCount)
+    {
+        if (elapsedMilliseconds == 0 || wordCount == 0) return 0; // Avoid division by zero
+        double elapsedMinutes = elapsedMilliseconds / 60000.0; // Convert milliseconds to minutes
+        return Math.Round(wordCount / elapsedMinutes); // Calculate WPM
+    }
+    private async Task ResetData()
+    {
+        var response = await HttpClient.PostAsync("/api/user/reset", null);
+        if (response.IsSuccessStatusCode)
+        {
+            Navigation.NavigateTo("/results", true); // Refresh the page
+        }
+        else
+        {
+            Console.WriteLine("Error resetting data");
         }
     }
 }

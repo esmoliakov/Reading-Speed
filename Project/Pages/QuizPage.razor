@@ -49,9 +49,16 @@ else
     private string userName = string.Empty;
     private string errorMessage; // Variable to hold error message
 
+    private int elapsedTime;
+    private int wordCount;
+
     protected override async Task OnInitializedAsync()
     {
-    
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        // Retrieve elapsed time and word count from query parameters
+        elapsedTime = int.TryParse(query["elapsedTime"], out var time) ? time : 0;
+        wordCount = int.TryParse(query["wordCount"], out var count) ? count : 0;
         // Fetch questions from the API
         // Get sorted questions
         _quizSubmission.Questions = await HttpClient.GetFromJsonAsync<List<Question>>("/api/questions/get-questions-sorted");
@@ -72,11 +79,12 @@ else
 
         if (!response.IsSuccessStatusCode)
         {
-            errorMessage = await response.Content.ReadAsStringAsync(); // Read error message from response
-            Console.WriteLine($"Warning: {errorMessage}"); // Log warning in the console
-            return; // Early return to prevent navigation on error
+            errorMessage = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Warning: {errorMessage}");
+            return;
         }
-        
-        Navigation.NavigateTo("/results");
+
+        // Navigate to results page with elapsed time and word count
+        Navigation.NavigateTo($"/results?elapsedTime={elapsedTime}&wordCount={wordCount}");
     }
 }

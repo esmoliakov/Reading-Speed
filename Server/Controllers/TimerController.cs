@@ -46,8 +46,7 @@ public class TimerController : ControllerBase
             stopwatch.Reset(); // Reset for next use
             WriteToFile(elapsedMilliseconds);
             
-
-            return Ok();
+            return Ok(elapsedMilliseconds);
         }
         return BadRequest("Stopwatch is not running.");
     }

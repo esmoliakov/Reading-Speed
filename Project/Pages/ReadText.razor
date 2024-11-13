@@ -64,11 +64,26 @@ else
 
     private async Task StopStopwatch()
     {
-        await HttpClient.GetAsync("api/timer/stop");
-    
-            // Navigate to the next page
-            Navigation.NavigateTo("/quiz");
+        var response = await HttpClient.GetAsync("api/timer/stop");
         
+        if (response.IsSuccessStatusCode)
+        {
+            var elapsedTimeString = await response.Content.ReadAsStringAsync();
+            
+            if (int.TryParse(elapsedTimeString, out int elapsedMilliseconds))
+            {
+                // Navigate to the quiz page with the elapsed time and word count as parameters
+                Navigation.NavigateTo($"/quiz?elapsedTime={elapsedMilliseconds}&wordCount={ParagraphWordCount.Count}");
+            }
+            else
+            {
+                fileContent = "Error: Elapsed time is not in a correct format.";
+            }
+        }
+        else
+        {
+            fileContent = $"Error stopping the stopwatch: {response.ReasonPhrase}";
+        }
     }
 
 }
