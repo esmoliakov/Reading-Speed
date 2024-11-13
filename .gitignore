@@ -25,3 +25,7 @@ Project/obj/project.assets.json
 Project/obj/project.nuget.cache
 Project/obj/Project.csproj.nuget.g.targets
 Server/path_to_log_file.log
+Server/appsettings.json
+Server/Files/paragraphId.txt
+Server/Files/stopwatch.txt
+Server/Files/UserRecord.json
