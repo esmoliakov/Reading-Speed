@@ -1,6 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Shared.Models;
 public class Question : IComparable 
 {
+    [Key]
+    public int ParagraphId { get; set; }
     public int id { get; set; }
     public string text { get; set; }
     public List<string> options { get; set; }
