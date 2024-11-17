@@ -42,7 +42,7 @@ else
     <p>No results available.</p>
 }
 
-<button class="btn btn-danger" @onclick="ResetData">Reset Data</button>
+<button class="btn btn-danger" @onclick="ResetData">New game</button>
 @code {
     private AttemptRecord userResult;
     private string result;
@@ -102,7 +102,7 @@ else
         var response = await HttpClient.PostAsync("/api/user/reset", null);
         if (response.IsSuccessStatusCode)
         {
-            Navigation.NavigateTo("/results", true); // Refresh the page
+            Navigation.NavigateTo("/read-text", true);
         }
         else
         {

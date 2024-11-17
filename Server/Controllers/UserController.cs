@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Server.Services;
 using Server.Exceptions;
-
+namespace Server.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase

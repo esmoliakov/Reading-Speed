@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Server.Services;
 using System.Diagnostics;
 using System.Threading.Tasks;
-
+namespace Server.Controllers;
 [ApiController]
 [Route("api/timer")]
 public class TimerController : ControllerBase
