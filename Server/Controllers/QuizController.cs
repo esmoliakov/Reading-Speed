@@ -38,16 +38,6 @@ public class QuizController : ControllerBase
                 
             UserDataService.SaveUserRecord(quizSubmission.UserName, quizScore, filePath);
             
-            Attempt attempt = new Attempt();
-            attempt.ParagraphId = -1;
-            attempt.UserName = quizSubmission.UserName;
-            attempt.Score = quizScore;
-            attempt.Wpm = -1;
-            attempt.ReadingTime = Int32.Parse(FileReaderService.ReadTextLastLine(Path.Combine(_environment.ContentRootPath, "Files", "stopwatch.txt")));
-            
-            _context.Attempts.Add(attempt);
-            _context.SaveChangesAsync();
-            
             return Ok();
         }
         catch (EmptyNameException ex)

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using Server.Database;
@@ -11,9 +12,11 @@ using Server.Database;
 namespace Server.Migrations
 {
     [DbContext(typeof(ReadingSpeedDbContext))]
-    partial class ReadingSpeedDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241118130021_TablesUpdate")]
+    partial class TablesUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -67,8 +70,6 @@ namespace Server.Migrations
 
                     b.HasKey("QuestionId");
 
-                    b.HasIndex("ParagraphId");
-
                     b.ToTable("Questions");
                 });
 
@@ -119,17 +120,6 @@ namespace Server.Migrations
                     b.HasKey("SeesionId");
 
                     b.ToTable("Sessions");
-                });
-
-            modelBuilder.Entity("Shared.Models.QuestionEntity", b =>
-                {
-                    b.HasOne("Shared.Models.ParagraphEntity", "Paragraph")
-                        .WithMany()
-                        .HasForeignKey("ParagraphId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Paragraph");
                 });
 
             modelBuilder.Entity("Shared.Models.ReadingTimeEntity", b =>
