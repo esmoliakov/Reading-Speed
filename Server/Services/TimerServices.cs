@@ -14,17 +14,21 @@ namespace Server.Services
             {
                 // Open the text file using a stream reader.
                 using StreamReader reader = new(filePath);
-            
-                string fileContent = "";
-                string bestTime = reader.ReadLine();
-                while((fileContent = reader.ReadLine()) != null)
+                
+                string fileContent = reader.ReadLine();
+                if (fileContent == null) return null;
+                
+                int bestTime = int.Parse(fileContent);  // Initialize the best time as an integer.
+                
+                while ((fileContent = reader.ReadLine()) != null)
                 {
-                    if(int.Parse(fileContent) < int.Parse(bestTime))
+                    int currentTime = int.Parse(fileContent);  // Convert each line to an integer.
+                    if (currentTime < bestTime)
                     {
-                        bestTime = fileContent;
+                        bestTime = currentTime;
                     }
                 }
-                return bestTime;
+                return bestTime.ToString();
             }  
             return null;                
         }
