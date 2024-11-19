@@ -5,6 +5,6 @@ namespace Shared.Models;
 public class SessionEntity
 {
     [Key]
-    public int SeesionId { get; set; }
+    public int SessionId { get; set; }
     public int ParagraphId { get; set; }
 }
