@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Server.Database;
 using Shared.Models;
@@ -6,19 +7,18 @@ namespace Server.Services;
 
 public class SessionService
 {
-    private readonly ReadingSpeedDbContext _context;
+    
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public SessionService(ReadingSpeedDbContext context, IHttpContextAccessor httpContextAccessor)
+    public SessionService(IHttpContextAccessor httpContextAccessor)
     {
-        _context = context;
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<int> CreateSessionAsync()
+    public async Task<int> CreateSessionAsync(ReadingSpeedDbContext context)
     {
         // Generate ParagraphId from existing paragraphs
-        int paragraphId = await GenerateParagraphIdAsync();
+        int paragraphId = await GenerateParagraphIdAsync(context);
         
         // Generate a new session ID
         var sessionEntity = new SessionEntity
@@ -27,8 +27,8 @@ public class SessionService
         };
 
         // Save to database
-        _context.Sessions.Add(sessionEntity);
-        await _context.SaveChangesAsync();
+        context.Sessions.Add(sessionEntity);
+        await context.SaveChangesAsync();
 
         // Store session ID in a cookie
         _httpContextAccessor.HttpContext.Response.Cookies.Append("SessionId", sessionEntity.SessionId.ToString(), new CookieOptions
@@ -41,10 +41,10 @@ public class SessionService
         return sessionEntity.SessionId;
     }
     
-    private async Task<int> GenerateParagraphIdAsync()
+    private async Task<int> GenerateParagraphIdAsync(ReadingSpeedDbContext context)
     {
         // Fetch all Paragraph IDs from the database
-        var paragraphIds = await _context.Paragraphs
+        var paragraphIds = await context.Paragraphs
             .Select(p => p.ParagraphId)
             .ToListAsync();
 
