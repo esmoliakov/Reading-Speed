@@ -8,9 +8,7 @@ public class ReadingSpeedDbContext : DbContext
 {
     public DbSet<ParagraphEntity> Paragraphs { get; set; }
     public DbSet<QuestionEntity> Questions { get; set; }
-    public DbSet<SessionEntity> Sessions { get; set; }
-    public DbSet<ReadingTimeEntity> ReadingTimes { get; set; }
-    public DbSet<ResultEntity> Results { get; set; }
+    public DbSet<AttemptEntity> Attempts { get; set; }
     
     public ReadingSpeedDbContext(DbContextOptions<ReadingSpeedDbContext> options) : base(options){}
 }

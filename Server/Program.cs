@@ -29,7 +29,6 @@ builder.Services.AddSession(options =>
 });
 
 builder.Services.AddHttpContextAccessor(); // Required for accessing HttpContext
-builder.Services.AddScoped<SessionService>();
 
 // Enable CORS to allow API calls
 builder.Services.AddCors(options =>
