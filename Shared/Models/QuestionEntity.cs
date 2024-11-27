@@ -19,4 +19,9 @@ public class QuestionEntity : IEntity
     public string OptionsJson { get; set; }
 
     public string CorrectAnswer { get; set; }
+
+    public static implicit operator QuestionEntity(Question v)
+    {
+        throw new NotImplementedException();
+    }
 }
