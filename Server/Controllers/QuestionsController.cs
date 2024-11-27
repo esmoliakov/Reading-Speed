@@ -44,8 +44,9 @@ public class QuestionsController : ControllerBase
         var lastQuestion = await _context.Questions.OrderByDescending(q => q.Id).FirstOrDefaultAsync();
         newQuestion.Id = (lastQuestion?.Id ?? 0) + 1;
 
-        _context.Questions.Add(newQuestion);
-        await _context.SaveChangesAsync();
+        //_context.Questions.Add(newQuestion);
+        //await _context.SaveChangesAsync();
+        await _questionRepository.AddAsync(newQuestion);
 
         return Ok();
     }
@@ -66,13 +67,15 @@ public class QuestionsController : ControllerBase
     [HttpDelete("delete-question")]
     public async Task<IActionResult> DeleteQuestion([FromQuery] int questionId)
     {
-        var question = await _context.Questions.FirstOrDefaultAsync(q => q.Id == questionId);
+        //var question = await _context.Questions.FirstOrDefaultAsync(q => q.Id == questionId);
+        var question = await _questionRepository.GetByIdAsync(questionId);
         
         if (question == null)
             return NotFound($"Question with ID {questionId} was not found.");
         
-        _context.Questions.Remove(question);
-        await _context.SaveChangesAsync();
+        //_context.Questions.Remove(question);
+        //await _context.SaveChangesAsync();
+        await _questionRepository.DeleteAsync(question);
         
         return NoContent();
     }
