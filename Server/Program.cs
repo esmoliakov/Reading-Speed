@@ -48,9 +48,6 @@ app.UseHttpsRedirection();
 app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 
-// Add session middleware.
-app.UseSession();
-
 app.UseAuthorization();
 
 app.UseCors();
