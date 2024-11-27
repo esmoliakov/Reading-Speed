@@ -1,12 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Shared.Interfaces;
 
 namespace Shared.Models;
 
-public class QuestionEntity
+public class QuestionEntity : IEntity
 {
     [Key]
-    public int QuestionId { get; set; }
+    public int Id { get; set; }
     public int ParagraphId { get; set; }
     
     [ForeignKey("ParagraphId")]

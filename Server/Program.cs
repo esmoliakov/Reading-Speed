@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Server.Database;
 using Server.Services;
+using Shared.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
