@@ -14,9 +14,10 @@ public class AttemptController : ControllerBase
     private readonly ReadingSpeedDbContext _context;
     private readonly QuizService _quizService;
 
-    public AttemptController(ReadingSpeedDbContext context)
+    public AttemptController(ReadingSpeedDbContext context, QuizService quizService)
     {
         _context = context;
+        _quizService = quizService;
     }
     
     [HttpPost("add-attempt")]

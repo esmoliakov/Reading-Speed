@@ -2,38 +2,28 @@ using Microsoft.AspNetCore.Mvc;
 using Server.Services;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Server.Database;
 
 [ApiController]
 [Route("api/timer")]
 public class TimerController : ControllerBase
 {
-    private static Stopwatch stopwatch = new Stopwatch();
-        private readonly IWebHostEnvironment _environment;
+    private static Stopwatch stopwatch = new Stopwatch(); 
+    private readonly IWebHostEnvironment _environment;
+    private readonly ReadingSpeedDbContext _context;
 
-        public TimerController(IWebHostEnvironment environment)
-        {
-            _environment = environment;
-        }
+    public TimerController(IWebHostEnvironment environment, ReadingSpeedDbContext context)
+    {
+        _environment = environment;
+        _context = context;
+    }
 
     [HttpGet("start")]
     public IActionResult StartTimer()
     {
         stopwatch.Start();
         return Ok("Stopwatch started.");
-    }
-
-    [HttpGet("write-to-file")]
-    public IActionResult WriteToFile(long elapsedMilliseconds)
-     {
-    // Save the elapsed time using ReadingTimeService
-            string fileName = "stopwatch.txt";
-            var filePath = Path.Combine(_environment.ContentRootPath, "Files", fileName);
-             if (!System.IO.File.Exists(filePath))
-            {
-                return NotFound("Questions file not found.");
-            }
-            TimerServices.WriteTimeToFile(elapsedMilliseconds,filePath);
-            return Ok();
     }
 
     [HttpGet("stop")]
@@ -44,25 +34,20 @@ public class TimerController : ControllerBase
             stopwatch.Stop();
             long elapsedMilliseconds = stopwatch.ElapsedMilliseconds;
             stopwatch.Reset(); // Reset for next use
-            WriteToFile(elapsedMilliseconds);
             
             return Ok(elapsedMilliseconds);
         }
         return BadRequest("Stopwatch is not running.");
     }
 
-        [HttpGet("read-text-file-find-best-time")]
-        public IActionResult FindBestTime(string fileName)
+        [HttpGet("get-best-time")]
+        public async Task<IActionResult> FindBestTime([FromQuery] string userName)
         {
-            // Getting the filepath when files are in the "Files" folder
-            var filePath = Path.Combine(_environment.ContentRootPath, "Files", fileName);
-            if (!System.IO.File.Exists(filePath))
-            {
-                return NotFound("File not found.");
-            }
-            var fileContent = TimerServices.FindBestReadingTime(filePath);
+            var attempt = await _context.Attempts.OrderByDescending(a => a.ReadingTime).FirstOrDefaultAsync(a => a.UserName == userName);
+            if (attempt == null)
+                return BadRequest($"User {userName} does not exist.");
             
-            return Ok(fileContent);
+            return Ok(attempt.ReadingTime);
             
         }
 }
