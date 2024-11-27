@@ -8,8 +8,8 @@ public class AttemptEntity
     public int AttemptId { get; set; }
     
     public string UserName { get; set; }
-    public int ReadingTime { get; set; }
-    public int Wpm { get; set; }
+    public long ReadingTime { get; set; }
+    public double Wpm { get; set; }
     public int ParagraphId { get; set; }
     public int Score { get; set; }
 }

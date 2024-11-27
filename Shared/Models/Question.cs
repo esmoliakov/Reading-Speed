@@ -3,13 +3,11 @@ using System.ComponentModel.DataAnnotations;
 namespace Shared.Models;
 public class Question : IComparable 
 {
-    [Key]
     public int ParagraphId { get; set; }
-    public int id { get; set; }
-    public string text { get; set; }
-    public List<string> options { get; set; }
-    public string correctAnswer { get; set; }
-    public string userAnswer { get; set; }
+    public int Id { get; set; }
+    public string Text { get; set; }
+    public List<string> Options { get; set; }
+    public string CorrectAnswer { get; set; }
     
     public int CompareTo(Object obj)
     {
@@ -18,7 +16,7 @@ public class Question : IComparable
         Question otherQuestion = obj as Question;
         
         if(otherQuestion != null)
-            return this.text.CompareTo(otherQuestion.text);
+            return this.Id.CompareTo(otherQuestion.Id);
         else
             throw new ArgumentException("Object is not a question");
     }

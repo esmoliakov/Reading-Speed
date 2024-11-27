@@ -33,10 +33,10 @@ public class QuizController : ControllerBase
         
         try
         {
-            int quizScore = QuizService.QuizScore(quizSubmission.Questions);
+            //int quizScore = QuizService.QuizScore(quizSubmission.Questions);
             var filePath = Path.Combine(_environment.ContentRootPath, "Files", quizSubmission.Filename);
                 
-            UserDataService.SaveUserRecord(quizSubmission.UserName, quizScore, filePath);
+            //UserDataService.SaveUserRecord(quizSubmission.UserName, quizScore, filePath);
             
             return Ok();
         }
