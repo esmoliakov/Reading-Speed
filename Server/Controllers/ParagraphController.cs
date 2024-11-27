@@ -26,8 +26,8 @@ public class ParagraphController : ControllerBase
         var newParagraphId = 1; // Default value if the table is empty
 
         var maxId = await _context.Paragraphs
-            .OrderByDescending(p => p.ParagraphId)
-            .Select(p => p.ParagraphId)
+            .OrderByDescending(p => p.Id)
+            .Select(p => p.Id)
             .FirstOrDefaultAsync();
 
         if (maxId != 0) newParagraphId = maxId + 1;
@@ -38,7 +38,7 @@ public class ParagraphController : ControllerBase
         // Create a new paragraph instance
         var newParagraph = new ParagraphEntity
         {
-            ParagraphId = newParagraphId,
+            Id = newParagraphId,
             ParagraphText = paragraphText,
             ParagraphWordCount = calculatedWordCount
         };
@@ -54,7 +54,7 @@ public class ParagraphController : ControllerBase
     public async Task<IActionResult> GetParagraphText([FromQuery] int paragraphId)
     {
         var paragraph = await _context.Paragraphs
-            .FirstOrDefaultAsync(p => p.ParagraphId == paragraphId);
+            .FirstOrDefaultAsync(p => p.Id == paragraphId);
 
         if (paragraph == null) return NotFound("Paragraph not found.");
 
@@ -65,7 +65,7 @@ public class ParagraphController : ControllerBase
     public async Task<IActionResult> UpdateParagraph([FromQuery] int paragraphId, [FromQuery] string paragraphText)
     {
         var existingParagraph = await _context.Paragraphs
-            .FirstOrDefaultAsync(p => p.ParagraphId == paragraphId);
+            .FirstOrDefaultAsync(p => p.Id == paragraphId);
         
         if (existingParagraph == null) return NotFound("Paragraph not found.");
 
@@ -86,7 +86,7 @@ public class ParagraphController : ControllerBase
     {
         // Find the paragraph by ID
         var paragraph = await _context.Paragraphs
-            .FirstOrDefaultAsync(p => p.ParagraphId == paragraphId);
+            .FirstOrDefaultAsync(p => p.Id == paragraphId);
 
         if (paragraph == null) return NotFound("Paragraph not found.");
 

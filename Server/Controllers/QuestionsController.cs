@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Server.Database;
+using Shared.Interfaces;
 using Shared.Models;
 using Shared.Models.DTOs;
 
@@ -12,17 +13,22 @@ namespace Server.Controllers;
 public class QuestionsController : ControllerBase
 {
     private readonly ReadingSpeedDbContext _context;
+    private readonly IRepository<QuestionEntity> _questionRepository;
+    private readonly IRepository<ParagraphEntity> _paragraphRepository;
 
     public QuestionsController(ReadingSpeedDbContext context)
     {
         _context = context;
+        _questionRepository = new Repository<QuestionEntity>(context);
+        _paragraphRepository = new Repository<ParagraphEntity>(context);
     }
     
     [HttpPost("create-question")]
     public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionDTO question)
     {
-        // Check if the ParagraphId exists
-        var paragraphExists = await _context.Paragraphs.FirstOrDefaultAsync(p => p.ParagraphId == question.ParagraphId);
+        //Check if the ParagraphId exists
+        //var paragraphExists = await _context.Paragraphs.FirstOrDefaultAsync(p => p.Id == question.ParagraphId);
+        var paragraphExists = await _paragraphRepository.GetByIdAsync(question.ParagraphId);
         if (paragraphExists == null)
         {
             return BadRequest($"Paragraph with ID {question.ParagraphId} does not exist.");
@@ -35,8 +41,8 @@ public class QuestionsController : ControllerBase
         newQuestion.CorrectAnswer = question.CorrectAnswer;
         
         // Automatically increment QuestionId
-        var lastQuestion = await _context.Questions.OrderByDescending(q => q.QuestionId).FirstOrDefaultAsync();
-        newQuestion.QuestionId = (lastQuestion?.QuestionId ?? 0) + 1;
+        var lastQuestion = await _context.Questions.OrderByDescending(q => q.Id).FirstOrDefaultAsync();
+        newQuestion.Id = (lastQuestion?.Id ?? 0) + 1;
 
         _context.Questions.Add(newQuestion);
         await _context.SaveChangesAsync();
@@ -60,7 +66,7 @@ public class QuestionsController : ControllerBase
     [HttpDelete("delete-question")]
     public async Task<IActionResult> DeleteQuestion([FromQuery] int questionId)
     {
-        var question = await _context.Questions.FirstOrDefaultAsync(q => q.QuestionId == questionId);
+        var question = await _context.Questions.FirstOrDefaultAsync(q => q.Id == questionId);
         
         if (question == null)
             return NotFound($"Question with ID {questionId} was not found.");

@@ -23,7 +23,7 @@ public class AttemptController : ControllerBase
     [HttpPost("add-attempt")]
     public async Task<IActionResult> AddAttempt([FromBody] CreateAttemptDTO createAttempt, [FromQuery] List<UserAnswerDTO> userAnswers)
     {
-        var paragraph = await _context.Paragraphs.FirstOrDefaultAsync(p => p.ParagraphId == createAttempt.ParagraphId);
+        var paragraph = await _context.Paragraphs.FirstOrDefaultAsync(p => p.Id == createAttempt.ParagraphId);
         if (paragraph == null)
             return BadRequest($"Paragraph with id {createAttempt.ParagraphId} does not exist");
 
@@ -32,8 +32,8 @@ public class AttemptController : ControllerBase
         newAttempt.ReadingTime = createAttempt.ReadingTime;
         newAttempt.ParagraphId = createAttempt.ParagraphId;
         
-        var lastAttempt = await _context.Attempts.OrderByDescending(a => a.AttemptId).FirstOrDefaultAsync();
-        newAttempt.AttemptId = (lastAttempt?.AttemptId ?? 0) + 1;
+        var lastAttempt = await _context.Attempts.OrderByDescending(a => a.Id).FirstOrDefaultAsync();
+        newAttempt.Id = (lastAttempt?.Id ?? 0) + 1;
 
         newAttempt.Score = _quizService.QuizScore(userAnswers);
         newAttempt.Wpm = _quizService.CalculateWPM(newAttempt.ReadingTime, paragraph.ParagraphWordCount);
@@ -41,13 +41,13 @@ public class AttemptController : ControllerBase
         _context.Attempts.Add(newAttempt);
         await _context.SaveChangesAsync();
         
-        return Ok(newAttempt.AttemptId);
+        return Ok(newAttempt.Id);
     }
 
     [HttpGet("get-attempt")]
     public async Task<IActionResult> GetAttempt([FromQuery] int attemptId)
     {
-        var attempt = await _context.Attempts.FirstOrDefaultAsync(a => a.AttemptId == attemptId);
+        var attempt = await _context.Attempts.FirstOrDefaultAsync(a => a.Id == attemptId);
         
         if (attempt == null)
             return NotFound($"Attempt with id {attemptId} does not exist");
@@ -58,7 +58,7 @@ public class AttemptController : ControllerBase
     [HttpDelete("delete-attempt")]
     public async Task<IActionResult> DeleteAttempt([FromQuery] int attemptId)
     {
-        var attempt = await _context.Attempts.FirstOrDefaultAsync(a => a.AttemptId == attemptId);
+        var attempt = await _context.Attempts.FirstOrDefaultAsync(a => a.Id == attemptId);
         if (attempt == null)
             return NotFound($"Attempt with id {attemptId} does not exist");
         
