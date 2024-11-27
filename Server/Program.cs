@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Server.Database;
 using Server.Services;
+using Shared.Interfaces;
+
 public class Program
 {
     public static void Main(string[] args)

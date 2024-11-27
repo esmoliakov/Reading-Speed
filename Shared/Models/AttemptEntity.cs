@@ -1,11 +1,12 @@
 using System.ComponentModel.DataAnnotations;
+using Shared.Interfaces;
 
 namespace Shared.Models;
 
-public class AttemptEntity
+public class AttemptEntity : IEntity
 {
     [Key]
-    public int AttemptId { get; set; }
+    public int Id { get; set; }
     
     public string UserName { get; set; }
     public long ReadingTime { get; set; }
