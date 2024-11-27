@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Server.Database;
+using Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +13,13 @@ builder.Services.AddRazorPages();
 builder.Services.AddDbContext<ReadingSpeedDbContext>(optionsBuilder =>
     optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<QuizService>();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddHttpContextAccessor(); // Required for accessing HttpContext
 
 // Enable CORS to allow API calls
 builder.Services.AddCors(options =>

@@ -1,4 +1,4 @@
-﻿@page "/quiz"
+﻿@page "/quiz-page"
 @using System.Text
 @using System.Text.Json
 @using Shared.Models
@@ -18,13 +18,12 @@ else
         @foreach (var question in _quizSubmission.Questions)
         {
             <div class="question">
-                <h4>@question.text</h4>
-                @foreach (var option in question.options)
+                <h4>@question.Text</h4>
+                @foreach (var option in question.Options)
                 {
                     <div>
-                        <input type="radio" id="@option" name="q-@question.id" value="@option" 
-                                   checked="@(question.userAnswer == option)" 
-                                   @onchange="() => question.userAnswer = option" />
+                        <input type="radio" id="@option" name="q-@question.Id" value="@option" 
+                               checked="@(question.CorrectAnswer == option)" />
                             <label for="@option">@option</label>
                     </div>
                 }

@@ -1,69 +1,73 @@
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using Server.Services;
+using Microsoft.EntityFrameworkCore;
+using Server.Database;
 using Shared.Models;
+using Shared.Models.DTOs;
 
-namespace Server.Controllers
+namespace Server.Controllers;
+
+[ApiController]
+[Route("api/questions")]
+public class QuestionsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/questions")]
+    private readonly ReadingSpeedDbContext _context;
 
-    public class QuestionsController : ControllerBase
+    public QuestionsController(ReadingSpeedDbContext context)
     {
-        private readonly IWebHostEnvironment _environment;
-
-        public QuestionsController(IWebHostEnvironment environment)
+        _context = context;
+    }
+    
+    [HttpPost("create-question")]
+    public async Task<IActionResult> CreateQuestion([FromBody] CreateQuestionDTO question)
+    {
+        // Check if the ParagraphId exists
+        var paragraphExists = await _context.Paragraphs.FirstOrDefaultAsync(p => p.ParagraphId == question.ParagraphId);
+        if (paragraphExists == null)
         {
-            _environment = environment;
+            return BadRequest($"Paragraph with ID {question.ParagraphId} does not exist.");
         }
 
-        [HttpGet("get-questions")]
-        public IActionResult GetQuestions(string fileName)
+        QuestionEntity newQuestion = new QuestionEntity();
+        newQuestion.ParagraphId = question.ParagraphId;
+        newQuestion.Text = question.Text;
+        newQuestion.OptionsJson = JsonSerializer.Serialize(question.Options);
+        newQuestion.CorrectAnswer = question.CorrectAnswer;
+        
+        // Automatically increment QuestionId
+        var lastQuestion = await _context.Questions.OrderByDescending(q => q.QuestionId).FirstOrDefaultAsync();
+        newQuestion.QuestionId = (lastQuestion?.QuestionId ?? 0) + 1;
+
+        _context.Questions.Add(newQuestion);
+        await _context.SaveChangesAsync();
+
+        return Ok();
+    }
+
+    [HttpGet("get-questions")]
+    public async Task<IActionResult> GetQuestions([FromQuery] int paragraphId)
+    {
+        var questions = await _context.Questions.Where(q => q.ParagraphId == paragraphId).ToListAsync();
+        
+        if (!questions.Any())
         {
-            var filePath = Path.Combine(_environment.ContentRootPath, "Files", fileName);
-
-            if (!System.IO.File.Exists(filePath))
-            {
-                return NotFound("Questions file not found.");
-            }
-
-            using StreamReader reader = new(filePath);
-
-            // Read the questions from the JSON file
-            string fileContent = reader.ReadToEnd();
-
-            List<Question> questions = JsonSerializer.Deserialize<List<Question>>(fileContent);
-
-            return Ok(questions);
+            return NotFound($"No questions found for Paragraph ID {paragraphId}.");
         }
         
-        [HttpGet("get-questions-sorted")]
-        public IActionResult GetQuestionsSorted(string fileName="random")
-        {
-            if (fileName.Equals("random"))
-            {
-                string fileId =
-                    FileReaderService.ReadTextFileWhole(Path.Combine(_environment.ContentRootPath, "Files",
-                        "paragraphId.txt")).Trim();
-                fileName = $"{fileId}_questions.json";
-            }
-            var filePath = Path.Combine(_environment.ContentRootPath, "Files", fileName);
-            if (!System.IO.File.Exists(filePath))
-            {
-                return NotFound("Questions file not found.");
-            }
+        return Ok(questions);
+    }
 
-            using StreamReader reader = new(filePath);
-
-            // Read the questions from the JSON file
-            string fileContent = reader.ReadToEnd();
-
-            List<Question> questions = JsonSerializer.Deserialize<List<Question>>(fileContent);
-            
-            if(questions != null)
-                questions.Sort();
-            
-            return Ok(questions);
-        }
+    [HttpDelete("delete-question")]
+    public async Task<IActionResult> DeleteQuestion([FromQuery] int questionId)
+    {
+        var question = await _context.Questions.FirstOrDefaultAsync(q => q.QuestionId == questionId);
+        
+        if (question == null)
+            return NotFound($"Question with ID {questionId} was not found.");
+        
+        _context.Questions.Remove(question);
+        await _context.SaveChangesAsync();
+        
+        return NoContent();
     }
 }

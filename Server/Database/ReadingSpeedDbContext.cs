@@ -6,9 +6,9 @@ namespace Server.Database;
 
 public class ReadingSpeedDbContext : DbContext
 {
-    public DbSet<Attempt> Attempts { get; set; }
-    public DbSet<Paragraph> Paragraphs { get; set; }
-    public DbSet<Question> Questions { get; set; }
+    public DbSet<ParagraphEntity> Paragraphs { get; set; }
+    public DbSet<QuestionEntity> Questions { get; set; }
+    public DbSet<AttemptEntity> Attempts { get; set; }
     
     public ReadingSpeedDbContext(DbContextOptions<ReadingSpeedDbContext> options) : base(options){}
 }

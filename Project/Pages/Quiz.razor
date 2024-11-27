@@ -1,0 +1,47 @@
+@page "/quiz"
+@inject NavigationManager Navigation
+<h3>Quiz</h3>
+
+@if (!string.IsNullOrEmpty(_text) && _textVisibility)
+{
+    <p>@_text</p>
+    <button class="btn btn-primary" @onclick="ShowQuiz">Stop</button>
+}
+
+
+@if (!string.IsNullOrEmpty(_questions) && _questionsVisibility)
+{
+    <p>@_questions</p>
+    <button class="btn btn-primary" @onclick="Submit">Submit</button>
+}
+
+@if (_submitVisibility)
+{
+<p>Submitted!</p>
+<button class="btn btn-primary" @onclick="Results">See results</button>
+}
+
+@code {
+    private String _text = "This is some text.";
+    private String _questions = "These will be questions";
+    private bool _textVisibility = true;
+    private bool _questionsVisibility = false;
+    private bool _submitVisibility = false;
+
+    private void ShowQuiz()
+    {
+        _textVisibility = false;
+        _questionsVisibility = true;
+    }
+    
+    private void Submit()
+    {
+        _questionsVisibility = false;
+        _submitVisibility = true;
+    }
+    
+    private void Results()
+    {
+        Navigation.NavigateTo("/results");
+    }
+}
