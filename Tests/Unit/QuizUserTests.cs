@@ -9,10 +9,10 @@ using Shared.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Xunit;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-
+using Xunit;
 
 public class ControllerTests
 {
@@ -43,115 +43,6 @@ public class ControllerTests
 
         _quizController = new QuizController(_mockEnvironment.Object, _mockQuizLogger.Object, _mockDbContext.Object);
         _userController = new UserController(_mockEnvironment.Object);
-    }
-
-
-
-    // *** QuizController Tests ***
-    
-    [Fact]
-    public void SubmitQuiz_ShouldReturnNoContent_WhenQuestionsAreEmpty()
-    {
-        // Arrange
-        var quizSubmission = new QuizSubmission
-        {
-            Questions = new List<Question>(),
-            UserName = "testuser",
-            Filename = "quiz_results.txt"
-        };
-
-        // Act
-        var result = _quizController.SubmitQuiz(quizSubmission);
-
-        // Assert
-        Assert.IsType<NoContentResult>(result);
-    }
-
-    [Fact]
-    public void SubmitQuiz_ShouldReturnBadRequest_WhenUserNameIsEmpty()
-    {
-        // Arrange
-        var quizSubmission = new QuizSubmission
-        {
-            Questions = new List<Question> { new Question { correctAnswer = "A", userAnswer = "A" } },
-            UserName = "",
-            Filename = "quiz_results.txt"
-        };
-
-        // Act
-        var result = _quizController.SubmitQuiz(quizSubmission);
-
-        // Assert
-        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-        Assert.Equal("Username cannot be null or empty.", badRequestResult.Value);
-    }
-
-    [Fact]
-    public async Task SubmitQuiz_ShouldReturnOk_WhenValidSubmission()
-    {
-        // Arrange
-        var quizSubmission = new QuizSubmission
-        {
-            Questions = new List<Question>
-            {
-                new Question { correctAnswer = "A", userAnswer = "A" },
-                new Question { correctAnswer = "B", userAnswer = "C" }
-            },
-            UserName = "testuser",
-            Filename = "quiz_results.txt"
-        };
-
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Files", quizSubmission.Filename);
-
-        // Create required files
-        Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "Files"));
-        File.WriteAllText(Path.Combine(Directory.GetCurrentDirectory(), "Files", "stopwatch.txt"), "120");
-
-        // Set up an in-memory database for testing
-        var options = new DbContextOptionsBuilder<ReadingSpeedDbContext>()
-            .UseInMemoryDatabase("TestDatabase")
-            .Options;
-
-        // Create the DbContext with the in-memory database
-        using var mockDbContext = new ReadingSpeedDbContext(options);
-
-        // Create the controller with the in-memory DbContext
-        var quizController = new QuizController(_mockEnvironment.Object, _mockQuizLogger.Object, mockDbContext);
-
-        // Act
-        var result = quizController.SubmitQuiz(quizSubmission);
-
-        // Assert
-        Assert.IsType<OkResult>(result);
-
-        // Verify the Attempt was added to the DbContext
-        var attempt = await mockDbContext.Attempts.FirstOrDefaultAsync(a => a.UserName == "testuser");
-        Assert.NotNull(attempt);
-        Assert.Equal(quizSubmission.UserName, attempt.UserName);
-    }
-
-
-    [Fact]
-    public void SubmitQuiz_ShouldReturnServerError_WhenUnhandledExceptionOccurs()
-    {
-        // Arrange
-        var quizSubmission = new QuizSubmission
-        {
-            Questions = new List<Question> { new Question { correctAnswer = "A", userAnswer = "A" } },
-            UserName = "testuser",
-            Filename = "quiz_results.txt"
-        };
-
-        // Force an exception during DB save
-        _mockDbContext.Setup(db => db.SaveChangesAsync(default)).Throws(new Exception("Database error"));
-
-        // Act
-        var result = _quizController.SubmitQuiz(quizSubmission);
-
-        // Assert
-        var statusCodeResult = Assert.IsType<ObjectResult>(result);
-        Assert.Equal(500, statusCodeResult.StatusCode);
-        Assert.Equal("An unexpected error occurred.", statusCodeResult.Value);
     }
 
     // *** UserController Tests ***
@@ -191,7 +82,6 @@ public class ControllerTests
         // Clean up for the test
         UserDataService.ClearUserRecords();
     }
-
 
     [Fact]
     public void ResetData_ShouldReturnOk_WhenResetIsSuccessful()

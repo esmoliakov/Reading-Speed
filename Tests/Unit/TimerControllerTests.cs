@@ -1,119 +1,112 @@
+using System.IO;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using Xunit;
 using Server.Controllers;
-using Microsoft.AspNetCore.Hosting;
 using Server.Services;
-using System.IO;
-using System.Threading.Tasks;
+using Xunit;
 
-public class TimerControllerTests
+public class FileControllerTests
 {
-    private readonly TimerController _controller;
+    private readonly FileController _controller;
     private readonly Mock<IWebHostEnvironment> _mockEnv;
+    private readonly string _baseFilePath;
 
-    public TimerControllerTests()
+    public FileControllerTests()
     {
-        // Mocking IWebHostEnvironment to avoid file path issues
         _mockEnv = new Mock<IWebHostEnvironment>();
         _mockEnv.Setup(env => env.ContentRootPath).Returns(Directory.GetCurrentDirectory());
-        // Initialize the controller with mocked dependencies
-        _controller = new TimerController(_mockEnv.Object);
+        _controller = new FileController(_mockEnv.Object);
+        _baseFilePath = Path.Combine(Directory.GetCurrentDirectory(), "Files");
     }
 
     [Fact]
-    public void StartTimer_ShouldReturnOk()
-    {
-        // Act
-        var result = _controller.StartTimer();
-
-        // Assert
-        Assert.IsType<OkObjectResult>(result);
-        var okResult = result as OkObjectResult;
-        Assert.Equal("Stopwatch started.", okResult.Value);
-    }
-
-    [Fact]
-    public async Task StopTimer_ShouldReturnElapsedTime()
+    public void ReadTextFile_ShouldReturnOk_WhenFileExists()
     {
         // Arrange
-        var controller = new TimerController(_mockEnv.Object);
-        controller.StartTimer();
+        var fileName = "sample_text.txt";
+        var filePath = Path.Combine(_baseFilePath, fileName);
+        Directory.CreateDirectory(_baseFilePath);
+        File.WriteAllText(filePath, "Sample file content.");
 
-        // 1 second run
-        await Task.Delay(1000);
-
-        var result = await controller.StopTimer();
+        // Act
+        var result = _controller.ReadTextFile(fileName);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        var elapsedTime = (long)okResult.Value;
-        Assert.InRange(elapsedTime, 900, 1100); // Check if elapsed time is approximately 1 second
+        Assert.Equal("Sample file content.", okResult.Value);
     }
 
     [Fact]
-    public void WriteToFile_ShouldReturnNotFound_WhenFileDoesNotExist()
+    public void ReadTextFile_ShouldReturnNotFound_WhenFileDoesNotExist()
     {
         // Arrange
-        long? elapsedMilliseconds = 1000;
-        var filePath = Path.Combine(_mockEnv.Object.ContentRootPath, "Files", "stopwatch.txt");
-
-        _mockEnv.Setup(env => env.ContentRootPath).Returns("non-existing-path");
+        var fileName = "non_existent_file.txt";
 
         // Act
-        var result = _controller.WriteToFile(elapsedMilliseconds.Value);  // Use the Value property for nullable long
+        var result = _controller.ReadTextFile(fileName);
 
         // Assert
-        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-        Assert.Equal("Questions file not found.", notFoundResult.Value);
+        Assert.IsType<NotFoundObjectResult>(result);
     }
 
     [Fact]
-    public void WriteToFile_ShouldCallWriteTimeToFile_WhenFileExists()
+    public void ReadLastFileLine_ShouldReturnOk_WhenFileExists()
     {
         // Arrange
-        long? elapsedMilliseconds = 500;
-        var filePath = Path.Combine(_mockEnv.Object.ContentRootPath, "Files", "stopwatch.txt");
+        var fileName = "sample_lines.txt";
+        var filePath = Path.Combine(_baseFilePath, fileName);
+        Directory.CreateDirectory(_baseFilePath);
+        File.WriteAllLines(filePath, new[] { "Line 1", "Line 2", "Line 3" });
 
         // Act
-        var result = _controller.WriteToFile(elapsedMilliseconds.Value);  // Use the Value property for nullable long
-
-        // Assert
-        Assert.IsType<OkResult>(result);
-        TimerServices.WriteTimeToFile(elapsedMilliseconds.Value, filePath);
-    }
-
-    [Fact]
-    public void FindBestTime_ShouldReturnNotFound_WhenFileDoesNotExist()
-    {
-        // Arrange
-        string fileName = "non-existing-file.txt";
-        var filePath = Path.Combine(_mockEnv.Object.ContentRootPath, "Files", fileName);
-
-        // Act
-        var result = _controller.FindBestTime(fileName);
-
-        // Assert
-        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-        Assert.Equal("File not found.", notFoundResult.Value);
-    }
-
-    /*[Fact]
-    public void FindBestTime_ShouldReturnOk_WhenFileExists()
-    {
-        // Arrange
-        string fileName = "stopwatch.txt";
-        var filePath = Path.Combine(_mockEnv.Object.ContentRootPath, "Files", fileName);
-
-        // Mock the method to return true, simulating that the file exists
-        _mockEnv.Setup(env => env.ContentRootPath).Returns(Directory.GetCurrentDirectory());
-        
-        // Act
-        var result = _controller.FindBestTime(fileName);
+        var result = _controller.ReadLastFileLine(fileName);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
-        Assert.Equal("500", okResult.Value);
-    }*/
+        Assert.Equal("Line 3", okResult.Value);
+    }
 
+    [Fact]
+    public void ReadLastFileLine_ShouldReturnNotFound_WhenFileDoesNotExist()
+    {
+        // Arrange
+        var fileName = "non_existent_lines.txt";
+
+        // Act
+        var result = _controller.ReadLastFileLine(fileName);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+    [Fact]
+    public void GetParagraphId_ShouldReturnOk_WhenFileExists()
+    {
+        // Arrange
+        var filePath = Path.Combine(_baseFilePath, "paragraphId.txt");
+        Directory.CreateDirectory(_baseFilePath);
+        File.WriteAllText(filePath, "123");
+
+        // Act
+        var result = _controller.GetParagrapghId();
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        Assert.Equal("123", okResult.Value);
+    }
+
+    [Fact]
+    public void GetParagraphId_ShouldReturnNotFound_WhenFileDoesNotExist()
+    {
+        // Arrange
+        var filePath = Path.Combine(_baseFilePath, "paragraphId.txt");
+        if (File.Exists(filePath)) File.Delete(filePath); // Ensure file is absent
+
+        // Act
+        var result = _controller.GetParagrapghId();
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
 }
