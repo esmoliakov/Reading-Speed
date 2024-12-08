@@ -31,17 +31,4 @@ public class QuizService
         double elapsedMinutes = elapsedMilliseconds / 60000.0; // Convert milliseconds to minutes
         return Math.Round(wordCount / elapsedMinutes); // Calculate WPM
     }
-    public void printScores()
-    {
-        foreach (object score in scoreList)
-        {
-            int unboxedScore = (int)score; //unboxing
-            Console.WriteLine(unboxedScore);
-        }
-    }
-    // New method to get scores as a List<int> using the extension method
-    public List<int> GetScoresAsList()
-    {
-        return scoreList.ToIntList(); // use this
-    }
 }

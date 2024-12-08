@@ -18,7 +18,28 @@ public class TimerServicesTests
         }
     }
 
+    // Test for WriteTimeToFile method
+    [Fact]
+    public void WriteTimeToFile_AppendsTimeToFile_WhenFileExists()
+    {
+        // Arrange
+        // Create the file first, simulating that it already exists
+        File.WriteAllText(TestTimeFilePath, "1000\n");
 
+        // Act
+        // Call the method to append a new time to the file
+        TimerServices.WriteTimeToFile(2000, TestTimeFilePath);
+
+        // Assert
+        var fileContents = File.ReadAllLines(TestTimeFilePath);
+        
+        // Assert that the file contains two lines with the expected times
+        Assert.Equal(2, fileContents.Length);
+        Assert.Equal("1000", fileContents[0]); // Initial content
+        Assert.Equal("2000", fileContents[1]); // Appended time
+    }
+
+    // Test for FindBestReadingTime method
     [Fact]
     public void FindBestReadingTime_ReturnsCorrectBestTime()
     {

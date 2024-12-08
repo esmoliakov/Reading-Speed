@@ -32,12 +32,6 @@ public class UserController : ControllerBase
             Logger.LogException(ex, "path_to_log_file.log");
             return BadRequest(ex.Message); // Return 400 Bad Request with the error message
         }
-        catch (Exception ex)
-        {
-            // Handle other exceptions
-            Logger.LogException(ex, "path_to_log_file.log");
-            return StatusCode(500, "An unexpected error occurred. Please try again later."); // Return 500 Internal Server Error
-        }
     }
     [HttpPost("reset")]
     public IActionResult ResetData()
