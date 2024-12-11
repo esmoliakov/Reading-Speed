@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 namespace Shared.Models;
 public class Question : IComparable 
 {
-    public int ParagraphId { get; set; }
     public int Id { get; set; }
     public string Text { get; set; }
     public List<string> Options { get; set; }

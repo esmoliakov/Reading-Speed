@@ -68,6 +68,14 @@ public class ParagraphController : ControllerBase
         return Ok(paragraph.ParagraphText);
     }
 
+    [HttpGet("get-last-id")]
+    public ActionResult<int> GetLastParagraphId()
+    {
+        var paragraph = _context.Paragraphs.OrderByDescending(p => p.Id).FirstOrDefault();
+        if (paragraph == null) return NotFound("Paragraph not found.");
+        return Ok(paragraph.Id);
+    }
+
     [HttpPut("update-paragrapgh")]
     public async Task<IActionResult> UpdateParagraph([FromQuery] int paragraphId, [FromQuery] string paragraphText)
     {

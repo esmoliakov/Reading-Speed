@@ -28,7 +28,7 @@ public class AttemptController : ControllerBase
     }
     
     [HttpPost("add-attempt")]
-    public async Task<IActionResult> AddAttempt([FromBody] CreateAttemptDTO createAttempt, [FromQuery] List<UserAnswerDTO> userAnswers)
+    public async Task<IActionResult> AddAttempt([FromBody] CreateAttemptDTO createAttempt)
     {
         //var paragraph = await _context.Paragraphs.FirstOrDefaultAsync(p => p.Id == createAttempt.ParagraphId);
         var paragraph = await _paragraphRepository.GetByIdAsync(createAttempt.ParagraphId);
@@ -43,12 +43,12 @@ public class AttemptController : ControllerBase
         var lastAttempt = await _context.Attempts.OrderByDescending(a => a.Id).FirstOrDefaultAsync();
         newAttempt.Id = (lastAttempt?.Id ?? 0) + 1;
 
-        newAttempt.Score = _quizService.QuizScore(userAnswers);
+        newAttempt.Score = _quizService.QuizScore(createAttempt.UserAnswers);
         newAttempt.Wpm = _quizService.CalculateWPM(newAttempt.ReadingTime, paragraph.ParagraphWordCount);
         
         //_context.Attempts.Add(newAttempt);
         //await _context.SaveChangesAsync();
-        await _context.Attempts.AddAsync(newAttempt);
+        await _attemptRepository.AddAsync(newAttempt);
         
         return Ok(newAttempt.Id);
     }

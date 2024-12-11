@@ -1,5 +1,10 @@
 @page "/quiz"
+@using System.Text.Json
+@using Shared.Models
+@using Shared.Models.DTOs
 @inject NavigationManager Navigation
+@inject HttpClient HttpClient
+@inject QuizScoreService QuizScoreService
 <h3>Quiz</h3>
 
 @if (!string.IsNullOrEmpty(_text) && _textVisibility)
@@ -9,9 +14,25 @@
 }
 
 
-@if (!string.IsNullOrEmpty(_questions) && _questionsVisibility)
+@if (_questions != null && _questionsVisibility)
 {
-    <p>@_questions</p>
+    @foreach (var question in _questions)
+    {
+        <div class="question">
+            <h4>@question.Question.Text</h4>
+            @foreach (var option in question.Question.Options)
+            {
+                <div>
+                    <input type="radio" id="@option" name="q-@question.Question.Id" value="@option" 
+                           @onchange="() => question.UserAnswer = option"/>
+                    <label for="@option">@option</label>
+                </div>
+            }
+        </div>
+    }
+    <div>
+        <input type="text" @bind="_userName" placeholder="Enter your name" />
+    </div>
     <button class="btn btn-primary" @onclick="Submit">Submit</button>
 }
 
@@ -21,27 +42,106 @@
 <button class="btn btn-primary" @onclick="Results">See results</button>
 }
 
+@if (_resultsVisibility)
+{
+    <p><strong>Your best time in Milliseconds:</strong> @_bestTime </p>
+
+    <p><strong>Your time Milliseconds:</strong> @_currentTime </p>
+    
+    @if (_result != null)
+    {
+        <p><strong>Name:</strong> @_result.UserName</p>
+        <p><strong>Score:</strong> @_result.Score</p>
+        <p><strong>Level:</strong> @QuizScoreService.GetScoreLevel(_result.Score)</p>
+        <p><strong>Your WPM:</strong> @_result.Wpm</p>
+    }
+}
+
 @code {
     private String _text = "This is some text.";
-    private String _questions = "These will be questions";
+    private List<UserAnswerDTO> _questions = new List<UserAnswerDTO>();
+    private int _textId = 0;
+    private int _attemptId = 0;
+    private long _elapsedTime = 0;
+    private String _userName = String.Empty;
     private bool _textVisibility = true;
     private bool _questionsVisibility = false;
     private bool _submitVisibility = false;
+    private bool _resultsVisibility = false;
+    private long _bestTime = 0;
+    private long _currentTime = 0;
+    private AttemptEntity _result = null;
 
-    private void ShowQuiz()
+    protected override async Task OnInitializedAsync()
     {
-        _textVisibility = false;
-        _questionsVisibility = true;
+        var response = await HttpClient.GetFromJsonAsync<int>("api/paragraph/get-last-id");
+        int maxId = response;
+        Random rnd = new Random();
+        _textId = rnd.Next(1, (maxId+1));
+
+        _text = await HttpClient.GetStringAsync($"/api/paragraph/get-paragraph-text?paragraphId={_textId}");
+        
+        await StartStopwatch();
     }
     
-    private void Submit()
+    private async Task ShowQuiz()
+    {
+        var response = await HttpClient.GetFromJsonAsync<long>("api/timer/stop");
+        _elapsedTime = response;
+        
+        _textVisibility = false;
+        _questionsVisibility = true;
+
+        List<QuestionEntity> oldQuestions = await HttpClient.GetFromJsonAsync<List<QuestionEntity>>($"/api/questions/get-questions?paragraphId={_textId}");
+        foreach (var q in oldQuestions)
+        {
+            UserAnswerDTO newAnswerDto = new UserAnswerDTO();
+            newAnswerDto.Question.Id = q.Id;
+            newAnswerDto.Question.Text = q.Text;
+            newAnswerDto.Question.Options = await HttpClient.GetFromJsonAsync<List<String>>($"/api/answers/get-answers?questionId={q.Id}");
+            newAnswerDto.Question.CorrectAnswer = await HttpClient.GetStringAsync($"/api/answers/get-correct-answer?questionId={q.Id}");
+            _questions.Add(newAnswerDto);
+            Console.WriteLine(newAnswerDto.Question.Options);
+            Console.WriteLine(newAnswerDto.Question.CorrectAnswer);
+        }
+    }
+    
+    private async Task Submit()
     {
         _questionsVisibility = false;
         _submitVisibility = true;
+
+        CreateAttemptDTO attemptDto = new CreateAttemptDTO();
+        attemptDto.ParagraphId = _textId;
+        attemptDto.ReadingTime = _elapsedTime;
+        attemptDto.UserName = _userName;
+        attemptDto.UserAnswers = _questions;
+
+        var response = await HttpClient.PostAsJsonAsync("api/attempt/add-attempt", attemptDto);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var resultString = await response.Content.ReadAsStringAsync();
+            _attemptId = int.Parse(resultString);
+            Console.WriteLine(_attemptId);
+        }
     }
     
-    private void Results()
+    private async Task Results()
     {
-        Navigation.NavigateTo("/results");
+        _submitVisibility = false;
+        _resultsVisibility = true;
+
+        _result = await HttpClient.GetFromJsonAsync<AttemptEntity>($"/api/attempt/get-attempt?attemptId={_attemptId}");
+        _currentTime = _result.ReadingTime;
+        
+        long time = await HttpClient.GetFromJsonAsync<long>($"/api/timer/get-best-time?userName={_userName}");
+        _bestTime = time;
+
+    }
+    
+    private async Task StartStopwatch()
+    {
+        await HttpClient.GetAsync("api/timer/start");
     }
 }
