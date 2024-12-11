@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using Server.Controllers;
 using Server.Services;
+using Server.Database;
+using Microsoft.EntityFrameworkCore;
+using Shared.Models;
 using Xunit;
 
 public class FileControllerTests
@@ -108,5 +111,46 @@ public class FileControllerTests
 
         // Assert
         Assert.IsType<NotFoundObjectResult>(result);
+    }
+    [Fact]
+    public async Task FindBestTime_ShouldReturnOk_WhenUserExists()
+    {
+        // Arrange
+        var userName = "JohnDoe";
+
+        // In-memory database setup
+        var options = new DbContextOptionsBuilder<ReadingSpeedDbContext>()
+            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .Options;
+
+        // Create mock data
+        var attempts = new List<AttemptEntity>
+        {
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 1200 },
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 1500 },
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 1000 }
+        };
+
+        // Initialize context with mock data
+        using (var context = new ReadingSpeedDbContext(options))
+        {
+            context.Attempts.AddRange(attempts);
+            context.SaveChanges();
+        }
+
+        // Create the controller with the in-memory context
+        using (var context = new ReadingSpeedDbContext(options))
+        {
+            var controller = new TimerController(null, context);
+
+            // Act
+            var result = await controller.FindBestTime(userName);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);  // The result should be OK
+            var actualReadingTime = Convert.ToInt32(okResult.Value); // Ensure it's an integer
+
+            Assert.Equal(1500, actualReadingTime);  // The highest ReadingTime is 1500
+        }
     }
 }

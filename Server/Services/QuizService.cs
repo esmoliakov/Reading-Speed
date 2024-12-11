@@ -1,7 +1,6 @@
 using Shared.Models;
 using System.Linq;
 using System.Collections;
-using Server.Extensions;
 using Shared.Models.DTOs;
 
 namespace Server.Services;
@@ -30,18 +29,5 @@ public class QuizService
         if (elapsedMilliseconds == 0 || wordCount == 0) return 0; // Avoid division by zero
         double elapsedMinutes = elapsedMilliseconds / 60000.0; // Convert milliseconds to minutes
         return Math.Round(wordCount / elapsedMinutes); // Calculate WPM
-    }
-    public void printScores()
-    {
-        foreach (object score in scoreList)
-        {
-            int unboxedScore = (int)score; //unboxing
-            Console.WriteLine(unboxedScore);
-        }
-    }
-    // New method to get scores as a List<int> using the extension method
-    public List<int> GetScoresAsList()
-    {
-        return scoreList.ToIntList(); // use this
     }
 }
