@@ -7,7 +7,6 @@ namespace Server.Services;
 
 public class QuizService
 {
-    //using arraylist to illustrate boxing and unboxing
     private static ArrayList scoreList = new ArrayList();
     public int QuizScore(List<UserAnswerDTO> userAnswers)
     {
