@@ -10,12 +10,10 @@ using Server.Database;
 public class TimerController : ControllerBase
 {
     private static Stopwatch stopwatch = new Stopwatch(); 
-    private readonly IWebHostEnvironment _environment;
     private readonly ReadingSpeedDbContext _context;
 
-    public TimerController(IWebHostEnvironment environment, ReadingSpeedDbContext context)
+    public TimerController(ReadingSpeedDbContext context)
     {
-        _environment = environment;
         _context = context;
     }
 
