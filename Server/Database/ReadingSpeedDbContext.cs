@@ -10,5 +10,7 @@ public class ReadingSpeedDbContext : DbContext
     public DbSet<QuestionEntity> Questions { get; set; }
     public DbSet<AttemptEntity> Attempts { get; set; }
     
+    public DbSet<AnswerEntity> Answers { get; set; }
+    
     public ReadingSpeedDbContext(DbContextOptions<ReadingSpeedDbContext> options) : base(options){}
 }

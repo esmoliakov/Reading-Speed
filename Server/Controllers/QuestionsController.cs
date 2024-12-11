@@ -37,8 +37,6 @@ public class QuestionsController : ControllerBase
         QuestionEntity newQuestion = new QuestionEntity();
         newQuestion.ParagraphId = question.ParagraphId;
         newQuestion.Text = question.Text;
-        newQuestion.OptionsJson = JsonSerializer.Serialize(question.Options);
-        newQuestion.CorrectAnswer = question.CorrectAnswer;
         
         // Automatically increment QuestionId
         var lastQuestion = await _context.Questions.OrderByDescending(q => q.Id).FirstOrDefaultAsync();

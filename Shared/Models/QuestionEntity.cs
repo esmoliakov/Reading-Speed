@@ -15,11 +15,6 @@ public class QuestionEntity : IEntity
     
     public string Text { get; set; }
 
-    // JSON string to store options
-    public string OptionsJson { get; set; }
-
-    public string CorrectAnswer { get; set; }
-
     public static implicit operator QuestionEntity(Question v)
     {
         throw new NotImplementedException();
