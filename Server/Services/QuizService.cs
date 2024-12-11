@@ -1,7 +1,6 @@
 using Shared.Models;
 using System.Linq;
 using System.Collections;
-using Server.Extensions;
 using Shared.Models.DTOs;
 
 namespace Server.Services;
