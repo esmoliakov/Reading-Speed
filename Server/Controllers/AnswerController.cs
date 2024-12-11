@@ -82,15 +82,19 @@ public class AnswerController : ControllerBase
         return Ok(answerTexts);
     }
 
-    [HttpGet("get-correct-answer")]
+    [HttpGet("get-correct-answers")]
     public async Task<IActionResult> GetCorrectAnswer([FromQuery] int questionId)
     {
-        var answer = await _context.Answers.Where(a => a.QuestionId == questionId && a.IsCorrectAnswer).FirstOrDefaultAsync();
+        var answers = await _context.Answers.Where(a => a.QuestionId == questionId && a.IsCorrectAnswer).ToListAsync();
         
-        if(answer == null)
+        if(answers == null)
             return NotFound("Answer not found");
         
-        return Ok(answer.Answer);
+        List<String> answerTexts = new List<String>();
+        foreach (var answer in answers)
+            answerTexts.Add(answer.Answer);
+        
+        return Ok(answerTexts);
     }
 
     [HttpDelete("delete-answer")]

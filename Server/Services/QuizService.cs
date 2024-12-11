@@ -12,7 +12,7 @@ public class QuizService
     public int QuizScore(List<UserAnswerDTO> userAnswers)
     {
         //using linq to count correct answers
-        var correctCount = userAnswers.Count(a => a.Question.CorrectAnswer.Equals(a.UserAnswer));
+        var correctCount = userAnswers.Count(a => a.Question.CorrectAnswers.Contains(a.UserAnswer));
         var answerCount = userAnswers.Count;
 
         //calculate score

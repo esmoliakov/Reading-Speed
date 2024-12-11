@@ -6,7 +6,7 @@ public class Question : IComparable
     public int Id { get; set; }
     public string Text { get; set; }
     public List<string> Options { get; set; }
-    public string CorrectAnswer { get; set; }
+    public List<string> CorrectAnswers { get; set; }
     
     public int CompareTo(Object obj)
     {

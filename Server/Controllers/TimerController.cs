@@ -10,12 +10,10 @@ using Server.Database;
 public class TimerController : ControllerBase
 {
     private static Stopwatch stopwatch = new Stopwatch(); 
-    private readonly IWebHostEnvironment _environment;
     private readonly ReadingSpeedDbContext _context;
 
-    public TimerController(IWebHostEnvironment environment, ReadingSpeedDbContext context)
+    public TimerController(ReadingSpeedDbContext context)
     {
-        _environment = environment;
         _context = context;
     }
 
@@ -43,7 +41,7 @@ public class TimerController : ControllerBase
         [HttpGet("get-best-time")]
         public async Task<IActionResult> FindBestTime([FromQuery] string userName)
         {
-            var attempt = await _context.Attempts.OrderByDescending(a => a.ReadingTime).FirstOrDefaultAsync(a => a.UserName == userName);
+            var attempt = await _context.Attempts.OrderBy(a => a.ReadingTime).FirstOrDefaultAsync(a => a.UserName == userName);
             if (attempt == null)
                 return BadRequest($"User {userName} does not exist.");
             

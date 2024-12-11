@@ -53,7 +53,7 @@
         <p><strong>Name:</strong> @_result.UserName</p>
         <p><strong>Score:</strong> @_result.Score</p>
         <p><strong>Level:</strong> @QuizScoreService.GetScoreLevel(_result.Score)</p>
-        <p><strong>Your WPM:</strong> @_result.Wpm</p>
+        <p><strong>Words per minute:</strong> @_result.Wpm</p>
     }
 }
 
@@ -99,10 +99,8 @@
             newAnswerDto.Question.Id = q.Id;
             newAnswerDto.Question.Text = q.Text;
             newAnswerDto.Question.Options = await HttpClient.GetFromJsonAsync<List<String>>($"/api/answers/get-answers?questionId={q.Id}");
-            newAnswerDto.Question.CorrectAnswer = await HttpClient.GetStringAsync($"/api/answers/get-correct-answer?questionId={q.Id}");
+            newAnswerDto.Question.CorrectAnswers = await HttpClient.GetFromJsonAsync<List<String>>($"/api/answers/get-correct-answers?questionId={q.Id}");
             _questions.Add(newAnswerDto);
-            Console.WriteLine(newAnswerDto.Question.Options);
-            Console.WriteLine(newAnswerDto.Question.CorrectAnswer);
         }
     }
     
