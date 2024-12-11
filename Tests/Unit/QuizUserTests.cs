@@ -122,4 +122,20 @@ public class ControllerTests
         Assert.Equal(500, statusCodeResult.StatusCode);
         Assert.Equal("An error occurred while resetting data.", statusCodeResult.Value);
     }
+    [Fact]
+    public void SaveUser_ShouldReturnBadRequest_WhenUsernameIsEmpty()
+    {
+        // Arrange
+        var emptyUsername = ""; // Simulating an empty username
+        var quizScore = 85;
+
+        // Act
+        var result = _userController.SaveUser(emptyUsername, quizScore);
+
+        // Assert
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result); // Ensure it's a BadRequest
+        Assert.Equal("Username cannot be null or empty.", badRequestResult.Value); // Ensure the exception message matches the expected message
+    }
+    
+
 }
