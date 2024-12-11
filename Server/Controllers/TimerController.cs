@@ -43,7 +43,7 @@ public class TimerController : ControllerBase
         [HttpGet("get-best-time")]
         public async Task<IActionResult> FindBestTime([FromQuery] string userName)
         {
-            var attempt = await _context.Attempts.OrderByDescending(a => a.ReadingTime).FirstOrDefaultAsync(a => a.UserName == userName);
+            var attempt = await _context.Attempts.OrderBy(a => a.ReadingTime).FirstOrDefaultAsync(a => a.UserName == userName);
             if (attempt == null)
                 return BadRequest($"User {userName} does not exist.");
             
