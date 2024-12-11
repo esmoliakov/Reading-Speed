@@ -99,10 +99,8 @@
             newAnswerDto.Question.Id = q.Id;
             newAnswerDto.Question.Text = q.Text;
             newAnswerDto.Question.Options = await HttpClient.GetFromJsonAsync<List<String>>($"/api/answers/get-answers?questionId={q.Id}");
-            newAnswerDto.Question.CorrectAnswer = await HttpClient.GetStringAsync($"/api/answers/get-correct-answer?questionId={q.Id}");
+            newAnswerDto.Question.CorrectAnswers = await HttpClient.GetFromJsonAsync<List<String>>($"/api/answers/get-correct-answers?questionId={q.Id}");
             _questions.Add(newAnswerDto);
-            Console.WriteLine(newAnswerDto.Question.Options);
-            Console.WriteLine(newAnswerDto.Question.CorrectAnswer);
         }
     }
     
