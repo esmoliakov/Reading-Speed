@@ -30,7 +30,6 @@ public class AttemptController : ControllerBase
     [HttpPost("add-attempt")]
     public async Task<IActionResult> AddAttempt([FromBody] CreateAttemptDTO createAttempt)
     {
-        //var paragraph = await _context.Paragraphs.FirstOrDefaultAsync(p => p.Id == createAttempt.ParagraphId);
         var paragraph = await _paragraphRepository.GetByIdAsync(createAttempt.ParagraphId);
         if (paragraph == null)
             return BadRequest($"Paragraph with id {createAttempt.ParagraphId} does not exist");
@@ -45,9 +44,6 @@ public class AttemptController : ControllerBase
 
         newAttempt.Score = _quizService.QuizScore(createAttempt.UserAnswers);
         newAttempt.Wpm = _quizService.CalculateWPM(newAttempt.ReadingTime, paragraph.ParagraphWordCount);
-        
-        //_context.Attempts.Add(newAttempt);
-        //await _context.SaveChangesAsync();
         await _attemptRepository.AddAsync(newAttempt);
         
         return Ok(newAttempt.Id);
@@ -56,7 +52,6 @@ public class AttemptController : ControllerBase
     [HttpGet("get-attempt")]
     public async Task<IActionResult> GetAttempt([FromQuery] int attemptId)
     {
-        //var attempt = await _context.Attempts.FirstOrDefaultAsync(a => a.Id == attemptId);
         var attempt = await _attemptRepository.GetByIdAsync(attemptId);
         
         if (attempt == null)
@@ -68,13 +63,10 @@ public class AttemptController : ControllerBase
     [HttpDelete("delete-attempt")]
     public async Task<IActionResult> DeleteAttempt([FromQuery] int attemptId)
     {
-        //var attempt = await _context.Attempts.FirstOrDefaultAsync(a => a.Id == attemptId);
         var attempt = await _attemptRepository.GetByIdAsync(attemptId);
         if (attempt == null)
             return NotFound($"Attempt with id {attemptId} does not exist");
         
-        //_context.Attempts.Remove(attempt);
-        //await _context.SaveChangesAsync();
         await _attemptRepository.DeleteAsync(attempt);
         
         return NoContent(); 

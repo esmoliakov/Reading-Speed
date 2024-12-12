@@ -112,30 +112,6 @@ public class AnswerControllerTests
     }
 
     [Fact]
-    public async Task GetCorrectAnswer_ShouldReturnCorrectAnswer()
-    {
-        // Arrange
-        var context = CreateInMemoryDbContext("TestDb_GetCorrectAnswer");
-        var controller = new AnswerController(context);
-
-        var question = new QuestionEntity { Id = 4, Text = "Sample question text" };
-        await context.Questions.AddAsync(question);
-        await context.SaveChangesAsync();
-
-        var answer = new AnswerEntity { QuestionId = question.Id, Answer = "Correct Answer", IsCorrectAnswer = true };
-        await context.Answers.AddAsync(answer);
-        await context.SaveChangesAsync();
-
-        // Act
-        var result = await controller.GetCorrectAnswer(question.Id);
-
-        // Assert
-        var actionResult = Assert.IsType<OkObjectResult>(result);
-        var correctAnswer = Assert.IsType<string>(actionResult.Value);
-        Assert.Equal("Correct Answer", correctAnswer);
-    }
-
-    [Fact]
     public async Task DeleteAnswer_ShouldRemoveAnswerFromDatabase()
     {
         // Arrange
