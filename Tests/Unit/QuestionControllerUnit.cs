@@ -105,5 +105,53 @@ namespace Server.Tests
             // Assert
             Assert.IsType<NoContentResult>(result);
         }
+        [Fact]
+public async Task CreateQuestion_ReturnsBadRequest_WhenParagraphDoesNotExist()
+{
+    // Arrange
+    var createQuestionDTO = new CreateQuestionDTO
+    {
+        ParagraphId = 999, // This ID doesn't exist in the database
+        Text = "Sample question"
+    };
+
+    // Act
+    var result = await _controller.CreateQuestion(createQuestionDTO);
+
+    // Assert
+    var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
+    Assert.Equal("Paragraph with ID 999 does not exist.", badRequestResult.Value);
+}
+
+[Fact]
+public async Task CreateQuestion_ReturnsOk_WhenQuestionIsCreated()
+{
+    // Arrange
+    var createQuestionDTO = new CreateQuestionDTO
+    {
+        ParagraphId = 1, // This ID should exist in the database
+        Text = "Sample question"
+    };
+
+    var paragraph = new ParagraphEntity
+    {
+        Id = 1,
+        ParagraphText = "Sample paragraph"
+    };
+
+    // Ensure the paragraph exists in the database
+    _dbContext.Paragraphs.Add(paragraph);
+    await _dbContext.SaveChangesAsync();
+
+    // Act
+    var result = await _controller.CreateQuestion(createQuestionDTO);
+
+    // Assert
+    Assert.IsType<OkResult>(result);
+    var createdQuestion = await _dbContext.Questions.FirstOrDefaultAsync(q => q.Text == "Sample question");
+    Assert.NotNull(createdQuestion);
+    Assert.Equal(createQuestionDTO.ParagraphId, createdQuestion.ParagraphId);
+}
+
     }
 }

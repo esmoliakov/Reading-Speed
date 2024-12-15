@@ -122,4 +122,55 @@ public class ParagraphControllerTests
         // Assert
         Assert.IsType<NoContentResult>(result);
     }
+
+    [Fact]
+    public async Task UpdateParagraph_ShouldReturnNotFound_WhenParagraphDoesNotExist()
+    {
+        // Arrange
+        var paragraphId = 999;
+        var updatedText = "Updated paragraph text.";
+
+        // Act
+        var result = await _controller.UpdateParagraph(paragraphId, updatedText);
+
+        // Assert
+        Assert.IsType<NotFoundObjectResult>(result);
+    }
+
+    [Fact]
+    public async Task UpdateParagraph_ShouldReturnNoContent_WhenParagraphIsUpdatedSuccessfully()
+    {
+        // Arrange
+        var paragraphId = 1;
+        var updatedText = "Updated paragraph text.";
+
+        // Act
+        var result = await _controller.UpdateParagraph(paragraphId, updatedText);
+
+        // Assert
+        Assert.IsType<NoContentResult>(result);
+
+        var paragraph = await _dbContext.Paragraphs.FirstOrDefaultAsync(p => p.Id == paragraphId);
+        Assert.NotNull(paragraph);
+        Assert.Equal(updatedText, paragraph.ParagraphText);
+    }
+    [Fact]
+    public void GetLastParagraphId_ShouldReturnNotFound_WhenNoParagraphsExist()
+    {
+        // Arrange
+        var emptyContext = new ReadingSpeedDbContext(
+            new DbContextOptionsBuilder<ReadingSpeedDbContext>().UseInMemoryDatabase("EmptyDb").Options
+        );
+        var controller = new ParagraphController(emptyContext);
+
+        // Act
+        var result = controller.GetLastParagraphId(); // Returns ActionResult<int>
+
+        // Assert
+        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);  // Access Result to get the actual ObjectResult
+        Assert.Equal("Paragraph not found.", notFoundResult.Value);
+    }
+
+
+
 }
