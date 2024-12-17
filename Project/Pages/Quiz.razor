@@ -7,9 +7,23 @@
 @inject QuizScoreService QuizScoreService
 <h3>Quiz</h3>
 
+@if(_textVisibility)
+{
+<div class="mb-3">
+    <label for="fontSize"><strong>Select Font Size:</strong></label>
+    <select @onchange="ChangeFontSize" class="form-select" style="width: 200px;">
+        <option value="14px">Small</option>
+        <option value="16px" selected>Medium</option>
+        <option value="18px">Large</option>
+        <option value="20px">Extra Large</option>
+    </select>
+</div>
+}
 @if (!string.IsNullOrEmpty(_text) && _textVisibility)
 {
-    <p>@_text</p>
+    <p style="font-size: @_selectedFontSize; line-height: 1.6; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+        @_text
+    </p>
     <button class="btn btn-primary" @onclick="ShowQuiz">Stop</button>
 }
 
@@ -56,18 +70,49 @@
         <p><strong>Words per minute:</strong> @_result.Wpm</p>
     }
 }
+@if (_bestResults)
+{
+    <button class="btn btn-primary" @onclick="bestResults">See best results of all time</button>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>User</th>
+                <th>Paragraph ID</th>
+                <th>Reading Time</th>
+                <th>Answers Count</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < _attempts.Count; i++)
+            {
+                <tr>
+                    <td>@(i + 1)</td>
+                    <td>@_attempts[i].UserName</td>
+                    <td>@_attempts[i].ParagraphId</td>
+                    <td>@_attempts[i].ReadingTime</td>
+                    <td>@_attempts[i].Score</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
     private String _text = "Loading...";
     private List<UserAnswerDTO> _questions = new List<UserAnswerDTO>();
+    private List<AttemptEntity> _attempts = new List<AttemptEntity>();
     private int _textId = 0;
     private int _attemptId = 0;
     private long _elapsedTime = 0;
     private String _userName = String.Empty;
     private bool _textVisibility = true;
+    private string _selectedFontSize = "16px"; 
     private bool _questionsVisibility = false;
     private bool _submitVisibility = false;
     private bool _resultsVisibility = false;
+    private bool _bestResults = false;
     private long _bestTime = 0;
     private long _currentTime = 0;
     private AttemptEntity _result = null;
@@ -83,7 +128,12 @@
         
         await StartStopwatch();
     }
-    
+    private async Task ChangeFontSize(ChangeEventArgs e)
+    {
+        _selectedFontSize = e.Value.ToString();
+
+        await HttpClient.PostAsJsonAsync("api/paragraph/font/set", _selectedFontSize);
+    }
     private async Task ShowQuiz()
     {
         var response = await HttpClient.GetFromJsonAsync<long>("api/timer/stop");
@@ -107,7 +157,7 @@
     private async Task Submit()
     {
         _questionsVisibility = false;
-        _submitVisibility = true;
+        _submitVisibility = true;        
 
         CreateAttemptDTO attemptDto = new CreateAttemptDTO();
         attemptDto.ParagraphId = _textId;
@@ -129,6 +179,7 @@
     {
         _submitVisibility = false;
         _resultsVisibility = true;
+        
 
         _result = await HttpClient.GetFromJsonAsync<AttemptEntity>($"/api/attempt/get-attempt?attemptId={_attemptId}");
         _currentTime = _result.ReadingTime;
@@ -136,6 +187,13 @@
         long time = await HttpClient.GetFromJsonAsync<long>($"/api/timer/get-best-time?userName={_userName}");
         _bestTime = time;
 
+    }
+    private async Task bestResults()
+    {
+        _resultsVisibility = false;
+        _bestResults = true;
+        _attempts = await HttpClient.GetFromJsonAsync<List<AttemptEntity>>("/api/attempt/get-best-attempts");
+        
     }
     
     private async Task StartStopwatch()

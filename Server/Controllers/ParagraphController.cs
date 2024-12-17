@@ -37,8 +37,9 @@ public class ParagraphController : ControllerBase
 
         if (maxId != 0) newParagraphId = maxId + 1;
 
-        var calculatedWordCount = paragraphText.Split([' ', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries)
-            .Length;
+       var calculatedWordCount = paragraphText.Split(new char[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+    .Length;
+
 
         // Create a new paragraph instance
         var newParagraph = new ParagraphEntity
@@ -85,8 +86,9 @@ public class ParagraphController : ControllerBase
          
         if (existingParagraph == null) return NotFound("Paragraph not found.");
 
-        var calculatedWordCount = paragraphText.Split([' ', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries)
+        var calculatedWordCount = paragraphText.Split(new char[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
             .Length;
+
         
         // Update the properties of the existing paragraph
         existingParagraph.ParagraphText = paragraphText;
@@ -116,4 +118,19 @@ public class ParagraphController : ControllerBase
 
         return NoContent(); // Indicates the operation was successful with no response body
     }
+        private const string FontSizeKey = "FontSize";
+
+        [HttpPost("set-font-size")]
+        public IActionResult SetFontSize([FromBody] string fontSize)
+        {
+            HttpContext.Session.SetString(FontSizeKey, fontSize);
+            return Ok();
+        }
+
+        [HttpGet("get-font-size")]
+        public IActionResult GetFontSize()
+        {
+            var fontSize = HttpContext.Session.GetString(FontSizeKey) ?? "16px"; // Numatytas dydis
+            return Ok(fontSize);
+        }
 }
