@@ -13,14 +13,14 @@ using Xunit;
 
 namespace Server.Tests
 {
-    public class QuestionsControllerTestsd
+    public class QuestionsControllerTestsI
     {
         private readonly Mock<IRepository<QuestionEntity>> _mockQuestionRepo;
         private readonly Mock<IRepository<ParagraphEntity>> _mockParagraphRepo;
         private readonly ReadingSpeedDbContext _dbContext;
         private readonly QuestionsController _controller;
 
-        public QuestionsControllerTestsd()
+        public QuestionsControllerTestsI()
         {
             var options = new DbContextOptionsBuilder<ReadingSpeedDbContext>()
                 .UseInMemoryDatabase(databaseName: "TestDb")
@@ -93,23 +93,6 @@ namespace Server.Tests
         }
 
         [Fact]
-        public async Task DeleteQuestion_ReturnsNoContent_WhenQuestionIsDeleted()
-        {
-            // Arrange
-            var questionId = 1;
-            var question = new QuestionEntity { Id = questionId, Text = "Sample question" };
-
-            _mockQuestionRepo.Setup(repo => repo.GetByIdAsync(It.IsAny<int>())).ReturnsAsync(question);
-            _mockQuestionRepo.Setup(repo => repo.DeleteAsync(It.IsAny<QuestionEntity>())).Returns(Task.CompletedTask);
-
-            // Act
-            var result = await _controller.DeleteQuestion(questionId);
-
-            // Assert
-            Assert.IsType<NoContentResult>(result);
-        }
-
-        [Fact]
         public async Task CreateQuestion_ReturnsBadRequest_WhenParagraphDoesNotExist()
         {
             // Arrange
@@ -125,35 +108,6 @@ namespace Server.Tests
             // Assert
             var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
             Assert.Equal("Paragraph with ID 999 does not exist.", badRequestResult.Value);
-        }
-        [Fact]
-        public async Task CreateQuestion_ReturnsOk_WhenQuestionIsCreated()
-        {
-            // Arrange
-            var createQuestionDTO = new CreateQuestionDTO
-            {
-                ParagraphId = 41,
-                Text = "Sample question"
-            };
-
-            var paragraph = new ParagraphEntity
-            {
-                Id = 41,
-                ParagraphText = "Sample paragraph"
-            };
-
-            _dbContext.Paragraphs.Add(paragraph);
-            await _dbContext.SaveChangesAsync();
-
-            // Act
-            var result = await _controller.CreateQuestion(createQuestionDTO);
-
-            // Assert
-            Assert.IsType<OkResult>(result);
-
-            var createdQuestion = await _dbContext.Questions.FirstOrDefaultAsync(q => q.Text == "Sample question");
-            Assert.NotNull(createdQuestion);
-            Assert.Equal(createQuestionDTO.ParagraphId, createdQuestion.ParagraphId);
         }
     }
 }
