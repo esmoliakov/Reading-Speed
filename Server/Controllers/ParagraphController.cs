@@ -37,8 +37,9 @@ public class ParagraphController : ControllerBase
 
         if (maxId != 0) newParagraphId = maxId + 1;
 
-        var calculatedWordCount = paragraphText.Split([' ', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries)
-            .Length;
+       var calculatedWordCount = paragraphText.Split(new char[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
+    .Length;
+
 
         // Create a new paragraph instance
         var newParagraph = new ParagraphEntity
@@ -85,8 +86,9 @@ public class ParagraphController : ControllerBase
          
         if (existingParagraph == null) return NotFound("Paragraph not found.");
 
-        var calculatedWordCount = paragraphText.Split([' ', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries)
+        var calculatedWordCount = paragraphText.Split(new char[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries)
             .Length;
+
         
         // Update the properties of the existing paragraph
         existingParagraph.ParagraphText = paragraphText;
