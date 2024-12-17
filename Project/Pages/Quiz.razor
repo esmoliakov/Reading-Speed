@@ -7,9 +7,21 @@
 @inject QuizScoreService QuizScoreService
 <h3>Quiz</h3>
 
+<div class="mb-3">
+    <label for="fontSize"><strong>Select Font Size:</strong></label>
+    <select @onchange="ChangeFontSize" class="form-select" style="width: 200px;">
+        <option value="14px">Small</option>
+        <option value="16px" selected>Medium</option>
+        <option value="18px">Large</option>
+        <option value="20px">Extra Large</option>
+    </select>
+</div>
+
 @if (!string.IsNullOrEmpty(_text) && _textVisibility)
 {
-    <p>@_text</p>
+    <p style="font-size: @_selectedFontSize; line-height: 1.6; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
+        @_text
+    </p>
     <button class="btn btn-primary" @onclick="ShowQuiz">Stop</button>
 }
 
@@ -94,6 +106,7 @@
     private long _elapsedTime = 0;
     private String _userName = String.Empty;
     private bool _textVisibility = true;
+    private string _selectedFontSize = "16px"; 
     private bool _questionsVisibility = false;
     private bool _submitVisibility = false;
     private bool _resultsVisibility = false;
@@ -113,7 +126,12 @@
         
         await StartStopwatch();
     }
-    
+    private async Task ChangeFontSize(ChangeEventArgs e)
+    {
+        _selectedFontSize = e.Value.ToString();
+
+        await HttpClient.PostAsJsonAsync("api/paragraph/font/set", _selectedFontSize);
+    }
     private async Task ShowQuiz()
     {
         var response = await HttpClient.GetFromJsonAsync<long>("api/timer/stop");

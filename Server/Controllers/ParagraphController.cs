@@ -118,4 +118,19 @@ public class ParagraphController : ControllerBase
 
         return NoContent(); // Indicates the operation was successful with no response body
     }
+        private const string FontSizeKey = "FontSize";
+
+        [HttpPost("set-font-size")]
+        public IActionResult SetFontSize([FromBody] string fontSize)
+        {
+            HttpContext.Session.SetString(FontSizeKey, fontSize);
+            return Ok();
+        }
+
+        [HttpGet("get-font-size")]
+        public IActionResult GetFontSize()
+        {
+            var fontSize = HttpContext.Session.GetString(FontSizeKey) ?? "16px"; // Numatytas dydis
+            return Ok(fontSize);
+        }
 }
