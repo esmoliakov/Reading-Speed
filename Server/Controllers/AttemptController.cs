@@ -71,7 +71,8 @@ public class AttemptController : ControllerBase
         
         return NoContent(); 
     }
-     [HttpGet("get-best-attempts")]
+
+    [HttpGet("get-best-attempts")]
     public async Task<IActionResult> GetBestAttempts()
     {
         var filteredAttempts = await _context.Attempts
@@ -89,6 +90,34 @@ public class AttemptController : ControllerBase
             .ToList(); 
         
         if(attempts.Count == 0)
+            return NotFound("No attempts found");
+        
+        return Ok(attempts);
+    }
+
+    [HttpGet("Get-users-best-wpms")]
+    public async Task<IActionResult> GetUsersBestWpms([FromQuery] String username)
+    {
+        var attempts = await _context.Attempts
+            .Where(a => a.UserName == username)
+            .OrderByDescending(a => a.Wpm).Take(5)
+            .ToListAsync(); 
+        
+        if (attempts.Count == 0)
+            return NotFound("No attempts found");
+        
+        return Ok(attempts);
+    }
+
+    [HttpGet("get-users-best-scores")]
+    public async Task<IActionResult> GetUsersBestScores([FromQuery] String username)
+    {
+        var attempts = await _context.Attempts
+            .Where(a => a.UserName == username)
+            .OrderByDescending(a => a.Score).Take(5)
+            .ToListAsync(); 
+        
+        if (attempts.Count == 0)
             return NotFound("No attempts found");
         
         return Ok(attempts);
