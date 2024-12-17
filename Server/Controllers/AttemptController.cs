@@ -71,4 +71,26 @@ public class AttemptController : ControllerBase
         
         return NoContent(); 
     }
+     [HttpGet("get-best-attempts")]
+    public async Task<IActionResult> GetBestAttempts()
+    {
+        var filteredAttempts = await _context.Attempts
+            .Where(a => a.Score >= 75)
+            .ToListAsync();
+        
+        if(filteredAttempts.Count == 0)
+            return NotFound("No attempts found");
+        
+        var attempts = filteredAttempts
+            .GroupBy(a => a.UserName)
+            .Select(g => g.OrderByDescending(a => a.Wpm).First())
+            .OrderByDescending(a => a.Wpm)
+            .Take(5)
+            .ToList(); 
+        
+        if(attempts.Count == 0)
+            return NotFound("No attempts found");
+        
+        return Ok(attempts);
+    }
 }
