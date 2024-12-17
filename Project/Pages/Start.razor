@@ -7,31 +7,6 @@
 @inject HttpClient HttpClient
 @inject QuizScoreService QuizScoreService
 
-<h3>Top Users Attempts</h3>
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>Rank</th>
-            <th>User</th>
-            <th>Paragraph ID</th>
-            <th>Reading Time</th>
-            <th>Answers Count</th>
-        </tr>
-    </thead>
-    <tbody>
-        @for (int i = 0; i < _attempts.Count; i++)
-        {
-            <tr>
-                <td>@(i + 1)</td>
-                <td>@_attempts[i].UserName</td>
-                <td>@_attempts[i].ParagraphId</td>
-                <td>@_attempts[i].ReadingTime</td>
-                <td>@_attempts[i].Score</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
 <PageTitle>Start</PageTitle>
 <div class="container">
     <div class="content">
@@ -77,12 +52,35 @@
 
 </style>
 
+<h3>Top User Attempts</h3>
+<small class="table-subtitle">(by words per minute)</small>
 
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>User</th>
+            <th>Words per minute</th>
+            <th>Answers Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < _attempts.Count; i++)
+        {
+            <tr>
+                <td>@(i + 1)</td>
+                <td>@_attempts[i].UserName</td>
+                <td>@_attempts[i].Wpm</td>
+                <td>@_attempts[i].Score</td>
+            </tr>
+        }
+    </tbody>
+</table>
 
 @code {
 
     private List<AttemptEntity> _attempts = new List<AttemptEntity>();
-    private async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         _attempts = await HttpClient.GetFromJsonAsync<List<AttemptEntity>>("/api/attempt/get-best-attempts");
         

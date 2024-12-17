@@ -58,9 +58,9 @@
 
 @if (_resultsVisibility)
 {
-    <p><strong>Your best time in Milliseconds:</strong> @_bestTime </p>
+    <p><strong>Your best time in Seconds:</strong> @_bestTime  </p>
 
-    <p><strong>Your time Milliseconds:</strong> @_currentTime </p>
+    <p><strong>Your time Seconds:</strong> @_currentTime </p>
     
     @if (_result != null)
     {
@@ -155,10 +155,16 @@
 
         _result = await HttpClient.GetFromJsonAsync<AttemptEntity>($"/api/attempt/get-attempt?attemptId={_attemptId}");
         _currentTime = _result.ReadingTime;
+        _currentTime = (long)ConvertMillisecondsToSeconds(_currentTime);
         
         long time = await HttpClient.GetFromJsonAsync<long>($"/api/timer/get-best-time?userName={_userName}");
         _bestTime = time;
+        _bestTime = (long)ConvertMillisecondsToSeconds(_bestTime);
 
+    }
+    public double ConvertMillisecondsToSeconds(long milliseconds)
+    {
+        return Math.Round(milliseconds / 1000.0, 1);
     }
     
     private async Task StartStopwatch()
