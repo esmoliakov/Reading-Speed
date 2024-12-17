@@ -7,6 +7,8 @@
 @inject QuizScoreService QuizScoreService
 <h3>Quiz</h3>
 
+@if(_textVisibility)
+{
 <div class="mb-3">
     <label for="fontSize"><strong>Select Font Size:</strong></label>
     <select @onchange="ChangeFontSize" class="form-select" style="width: 200px;">
@@ -16,7 +18,7 @@
         <option value="20px">Extra Large</option>
     </select>
 </div>
-
+}
 @if (!string.IsNullOrEmpty(_text) && _textVisibility)
 {
     <p style="font-size: @_selectedFontSize; line-height: 1.6; border: 1px solid #ddd; padding: 10px; border-radius: 5px;">
