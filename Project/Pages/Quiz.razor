@@ -58,17 +58,53 @@
 
 @if (_resultsVisibility)
 {
-    <p><strong>Your best time in Seconds:</strong> @_bestTime  </p>
+    <div class="card">
+        <div class="card-header">
+            Results Summary
+        </div>
+        <div class="card-body">
+            <p><strong>Username:</strong> @_result.UserName</p>
+            <p><strong>Reading Time:</strong> @_currentTime seconds</p>
+            <p><strong>Score:</strong> @_result.Score</p>
+            <p><strong>Words Per Minute:</strong> @_result.Wpm</p>
+            <p><strong>Level:</strong> @QuizScoreService.GetScoreLevel(_result.Score)</p>
+        </div>
+    </div>
 
-    <p><strong>Your time Seconds:</strong> @_currentTime </p>
-    
-    @if (_result != null)
-    {
-        <p><strong>Name:</strong> @_result.UserName</p>
-        <p><strong>Score:</strong> @_result.Score</p>
-        <p><strong>Level:</strong> @QuizScoreService.GetScoreLevel(_result.Score)</p>
-        <p><strong>Words per minute:</strong> @_result.Wpm</p>
-    }
+    <h4>Your Best Words per Minute</h4>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Words per Minute</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var attempt in _bestWpms)
+        {
+            <tr>
+                <td>@attempt.Wpm</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
+    <h4>Your Best Scores</h4>
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Score</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var attempt in _bestScores)
+        {
+            <tr>
+                <td>@attempt.Score</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+
 }
 
 @code {
@@ -85,9 +121,10 @@
     private bool _submitVisibility = false;
     private bool _resultsVisibility = false;
     private bool _bestResults = false;
-    private long _bestTime = 0;
     private long _currentTime = 0;
-    private AttemptEntity _result = null;
+    private AttemptEntity _result = new AttemptEntity();
+    private List<AttemptEntity> _bestWpms = new List<AttemptEntity>();
+    private List<AttemptEntity> _bestScores = new List<AttemptEntity>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -156,10 +193,12 @@
         _result = await HttpClient.GetFromJsonAsync<AttemptEntity>($"/api/attempt/get-attempt?attemptId={_attemptId}");
         _currentTime = _result.ReadingTime;
         _currentTime = (long)ConvertMillisecondsToSeconds(_currentTime);
+
+        _bestWpms =
+            await HttpClient.GetFromJsonAsync<List<AttemptEntity>>($"/api/attempt/Get-users-best-wpms?username={_result.UserName}");
         
-        long time = await HttpClient.GetFromJsonAsync<long>($"/api/timer/get-best-time?userName={_userName}");
-        _bestTime = time;
-        _bestTime = (long)ConvertMillisecondsToSeconds(_bestTime);
+        _bestScores =
+            await HttpClient.GetFromJsonAsync<List<AttemptEntity>>($"/api/attempt/Get-users-best-scores?username={_result.UserName}");
 
     }
     public double ConvertMillisecondsToSeconds(long milliseconds)
