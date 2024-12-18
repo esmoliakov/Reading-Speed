@@ -23,4 +23,12 @@
     <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Files\1_questions.json" />
+    <_ContentIncludedByDefault Remove="Files\2_questions.json" />
+    <_ContentIncludedByDefault Remove="Files\3_questions.json" />
+    <_ContentIncludedByDefault Remove="Files\sampleQuestions.json" />
+    <_ContentIncludedByDefault Remove="Files\UserRecord.json" />
+  </ItemGroup>
+
 </Project>
