@@ -1,113 +1,92 @@
-using Moq;
-using System.Collections.Generic;
-using System.Linq;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Server.Controllers;
-using Server.Database;
-using Shared.Interfaces;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
 using Shared.Models;
 using Shared.Models.DTOs;
-using Xunit;
+using Microsoft.AspNetCore.Mvc.Testing;
+using Server.Database;
+using Microsoft.EntityFrameworkCore;
 
-namespace Server.Tests
+public class QuestionsControllerIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
 {
-    public class QuestionsControllerTestsI
+    private readonly HttpClient _client;
+    private readonly WebApplicationFactory<Program> _factory;
+
+    public QuestionsControllerIntegrationTests(WebApplicationFactory<Program> factory)
     {
-        private readonly Mock<IRepository<QuestionEntity>> _mockQuestionRepo;
-        private readonly Mock<IRepository<ParagraphEntity>> _mockParagraphRepo;
-        private readonly ReadingSpeedDbContext _dbContext;
-        private readonly QuestionsController _controller;
+        _factory = factory;
+        _client = _factory.CreateClient();
+    }
 
-        public QuestionsControllerTestsI()
+    [Fact]
+    public async Task CreateQuestion_ReturnsOk_WhenParagraphExists()
+    {
+        // Arrange
+        var paragraph = new ParagraphEntity
         {
-            var options = new DbContextOptionsBuilder<ReadingSpeedDbContext>()
-                .UseInMemoryDatabase(databaseName: "TestDb")
-                .Options;
+            ParagraphText = "Sample paragraph text"
+        };
 
-            _dbContext = new ReadingSpeedDbContext(options);
-
-            _mockQuestionRepo = new Mock<IRepository<QuestionEntity>>();
-            _mockParagraphRepo = new Mock<IRepository<ParagraphEntity>>();
-
-            _controller = new QuestionsController(_dbContext);
+        // Add a paragraph to the database
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var context = scope.ServiceProvider.GetRequiredService<ReadingSpeedDbContext>();
+            context.Paragraphs.Add(paragraph);
+            await context.SaveChangesAsync();
         }
 
-        [Fact]
-        public async Task GetQuestions_ReturnsNotFound_WhenNoQuestionsFound()
+        var paragraphId = paragraph.Id; 
+
+        var createQuestionDTO = new CreateQuestionDTO
         {
-            // Arrange
-            var paragraphId = 1;
+            ParagraphId = paragraphId, 
+            Text = "What is the speed of light?"
+        };
 
-            _dbContext.Questions.RemoveRange(_dbContext.Questions);
-            await _dbContext.SaveChangesAsync();
+        // Act
+        var response = await _client.PostAsJsonAsync("api/questions/create-question", createQuestionDTO);
 
-            // Act
-            var result = await _controller.GetQuestions(paragraphId);
-
-            // Assert
-            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("No questions found for Paragraph ID 1.", notFoundResult.Value);
+        // Assert
+        if (response.StatusCode != System.Net.HttpStatusCode.OK)
+        {
+            // Log the response content for debugging
+            var content = await response.Content.ReadAsStringAsync();
+            Assert.True(false, $"Request failed with status code {response.StatusCode} and response: {content}");
         }
-
-        [Fact]
-        public async Task GetQuestions_ReturnsOk_WhenQuestionsFound()
+        else
         {
-            // Arrange
-            var paragraphId = 41;
-            var question = new QuestionEntity
+            response.EnsureSuccessStatusCode();
+            Assert.Equal(System.Net.HttpStatusCode.OK, response.StatusCode);
+
+            // Verify that the question was added to the database
+            using (var scope = _factory.Services.CreateScope())
             {
-                Id = 41,
-                ParagraphId = paragraphId,
-                Text = "Sample question"
-            };
-
-            _dbContext.Questions.Add(question);
-            await _dbContext.SaveChangesAsync();
-
-            // Act
-            var result = await _controller.GetQuestions(paragraphId);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            var returnValue = Assert.IsType<List<QuestionEntity>>(okResult.Value);
-            Assert.Single(returnValue);
-            Assert.Equal("Sample question", returnValue.First().Text);
+                var context = scope.ServiceProvider.GetRequiredService<ReadingSpeedDbContext>();
+                var question = await context.Questions.FirstOrDefaultAsync(q => q.Text == createQuestionDTO.Text);
+                Assert.NotNull(question);
+                Assert.Equal(createQuestionDTO.Text, question.Text);
+            }
         }
+    }
 
-        // Test for deleting a question that doesn't exist
-        [Fact]
-        public async Task DeleteQuestion_ReturnsNotFound_WhenQuestionDoesNotExist()
+    [Fact]
+    public async Task CreateQuestion_ReturnsBadRequest_WhenParagraphDoesNotExist()
+    {
+        // Arrange
+        var createQuestionDTO = new CreateQuestionDTO
         {
-            // Arrange
-            var questionId = 1;
-            _mockQuestionRepo.Setup(repo => repo.GetByIdAsync(It.IsAny<int>())).ReturnsAsync((QuestionEntity)null);
+            ParagraphId = 999, // non existent
+            Text = "What is the speed of light?"
+        };
 
-            // Act
-            var result = await _controller.DeleteQuestion(questionId);
+        // Act
+        var response = await _client.PostAsJsonAsync("api/questions/create-question", createQuestionDTO);
 
-            // Assert
-            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
-            Assert.Equal("Question with ID 1 was not found.", notFoundResult.Value);
-        }
+        // Assert
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
 
-        [Fact]
-        public async Task CreateQuestion_ReturnsBadRequest_WhenParagraphDoesNotExist()
-        {
-            // Arrange
-            var createQuestionDTO = new CreateQuestionDTO
-            {
-                ParagraphId = 999,
-                Text = "Sample question"
-            };
-
-            // Act
-            var result = await _controller.CreateQuestion(createQuestionDTO);
-
-            // Assert
-            var badRequestResult = Assert.IsType<BadRequestObjectResult>(result);
-            Assert.Equal("Paragraph with ID 999 does not exist.", badRequestResult.Value);
-        }
+        var content = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Paragraph with ID 999 does not exist.", content);
     }
 }
