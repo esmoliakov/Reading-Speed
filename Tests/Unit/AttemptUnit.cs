@@ -8,7 +8,7 @@ using Shared.Models;
 using Shared.Models.DTOs;
 using Xunit;
 
-public class AttemptControllerIntegrationTests
+public class AttemptControllerTests
 {
     private ReadingSpeedDbContext CreateInMemoryDbContext()
     {
@@ -29,7 +29,7 @@ public class AttemptControllerIntegrationTests
 
         var attempt = new AttemptEntity
         {
-            Id = 1,
+            Id = 12,
             UserName = "Jane Doe",
             ReadingTime = 200,
             Wpm = 150,
@@ -40,7 +40,7 @@ public class AttemptControllerIntegrationTests
         await context.SaveChangesAsync();
 
         // Act
-        var result = await controller.GetAttempt(1);
+        var result = await controller.GetAttempt(12);
 
         // Assert
         var okResult = Assert.IsType<OkObjectResult>(result);
@@ -122,7 +122,7 @@ public async Task AddAttempt_ShouldReturnBadRequest_WhenParagraphNotFound()
 
         var attempt = new AttemptEntity
         {
-            Id = 1,
+            Id = 10,
             UserName = "Test User",
             ReadingTime = 300,
             Wpm = 100,
@@ -158,4 +158,89 @@ public async Task AddAttempt_ShouldReturnBadRequest_WhenParagraphNotFound()
         var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
         Assert.Equal("Attempt with id 999 does not exist", notFoundResult.Value);
     }
+    
+    [Fact]
+    public async Task GetUsersBestWpms_ShouldReturnTopWpms_WhenUserHasAttempts()
+    {
+        // Arrange
+        var context = CreateInMemoryDbContext();
+        var quizService = new QuizService();
+        var controller = new AttemptController(context, quizService);
+
+        var attempts = new List<AttemptEntity>
+        {
+            new AttemptEntity { Id = 1, UserName = "JohnDoe", ReadingTime = 200, Wpm = 180, Score = 85, ParagraphId = 1 },
+            new AttemptEntity { Id = 2, UserName = "JohnDoe", ReadingTime = 150, Wpm = 170, Score = 75, ParagraphId = 1 },
+            new AttemptEntity { Id = 3, UserName = "JohnDoe", ReadingTime = 100, Wpm = 160, Score = 70, ParagraphId = 1 }
+        };
+
+        await context.Attempts.AddRangeAsync(attempts);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await controller.GetUsersBestWpms("JohnDoe");
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var fetchedAttempts = Assert.IsType<List<AttemptEntity>>(okResult.Value);
+
+        // Check the number of returned attempts and their order
+        Assert.Equal(3, fetchedAttempts.Count);  // Expecting top 3 attempts by WPM
+        Assert.True(fetchedAttempts[0].Wpm > fetchedAttempts[1].Wpm);  // Check that they are sorted by WPM
+    }
+    [Fact]
+    public async Task GetUsersBestScores_ShouldReturnTopScores_WhenUserHasAttempts()
+    {
+        // Arrange
+        var context = CreateInMemoryDbContext();
+        var quizService = new QuizService();
+        var controller = new AttemptController(context, quizService);
+
+        var attempts = new List<AttemptEntity>
+        {
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 200, Wpm = 180, Score = 90, ParagraphId = 1 },
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 150, Wpm = 170, Score = 85, ParagraphId = 1 },
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 100, Wpm = 160, Score = 80, ParagraphId = 1 },
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 120, Wpm = 175, Score = 95, ParagraphId = 1 },
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 140, Wpm = 165, Score = 88, ParagraphId = 1 },
+            new AttemptEntity { UserName = "JohnDoe", ReadingTime = 130, Wpm = 150, Score = 70, ParagraphId = 1 }
+        };
+
+
+        await context.Attempts.AddRangeAsync(attempts);
+        await context.SaveChangesAsync();
+
+        // Act
+        var result = await controller.GetUsersBestScores("JohnDoe");
+
+        // Assert
+        var okResult = Assert.IsType<OkObjectResult>(result);
+        var fetchedAttempts = Assert.IsType<List<AttemptEntity>>(okResult.Value);
+
+        // Check that we have 5 attempts (top 5 by score)
+        Assert.Equal(5, fetchedAttempts.Count);
+
+        // Check that they are sorted by score in descending order
+        Assert.True(fetchedAttempts[0].Score >= fetchedAttempts[1].Score);
+        Assert.True(fetchedAttempts[1].Score >= fetchedAttempts[2].Score);
+        Assert.True(fetchedAttempts[2].Score >= fetchedAttempts[3].Score);
+        Assert.True(fetchedAttempts[3].Score >= fetchedAttempts[4].Score);
+    }
+
+    [Fact]
+    public async Task GetUsersBestScores_ShouldReturnNotFound_WhenNoAttemptsFound()
+    {
+        // Arrange
+        var context = CreateInMemoryDbContext();
+        var quizService = new QuizService();
+        var controller = new AttemptController(context, quizService);
+
+        // Act
+        var result = await controller.GetUsersBestScores("NonExistentUser");
+
+        // Assert
+        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+        Assert.Equal("No attempts found", notFoundResult.Value);
+    }
+
 }
