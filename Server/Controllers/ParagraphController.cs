@@ -48,10 +48,7 @@ public class ParagraphController : ControllerBase
             ParagraphText = paragraphText,
             ParagraphWordCount = calculatedWordCount
         };
-
-        // Add the new paragraph to the database
-        //_context.Paragraphs.Add(newParagraph);
-        //await _context.SaveChangesAsync();
+            
         await _paragraphRepository.AddAsync(newParagraph);
 
         return Ok();
@@ -60,8 +57,6 @@ public class ParagraphController : ControllerBase
     [HttpGet("get-paragraph-text")]
     public async Task<IActionResult> GetParagraphText([FromQuery] int paragraphId)
     {
-        //var paragraph = await _context.Paragraphs
-        //    .FirstOrDefaultAsync(p => p.Id == paragraphId);
         var paragraph = await _paragraphRepository.GetByIdAsync(paragraphId);
         
         if (paragraph == null) return NotFound("Paragraph not found.");
@@ -80,8 +75,6 @@ public class ParagraphController : ControllerBase
     [HttpPut("update-paragrapgh")]
     public async Task<IActionResult> UpdateParagraph([FromQuery] int paragraphId, [FromQuery] string paragraphText)
     {
-        //var existingParagraph = await _context.Paragraphs
-        //   .FirstOrDefaultAsync(p => p.Id == paragraphId);
         var existingParagraph = await _paragraphRepository.GetByIdAsync(paragraphId);
          
         if (existingParagraph == null) return NotFound("Paragraph not found.");
@@ -102,18 +95,10 @@ public class ParagraphController : ControllerBase
     [HttpDelete("delete-paragraph")]
     public async Task<IActionResult> DeleteParagraph([FromQuery] int paragraphId)
     {
-        // Find the paragraph by ID
-        //var paragraph = await _context.Paragraphs
-        //    .FirstOrDefaultAsync(p => p.Id == paragraphId);
         var paragraph = await _paragraphRepository.GetByIdAsync(paragraphId);
 
         if (paragraph == null) return NotFound("Paragraph not found.");
-
-        // Remove the paragraph
-        //_context.Paragraphs.Remove(paragraph);
-
-        // Save changes to commit the deletion to the database
-        //await _context.SaveChangesAsync();
+        
         await _paragraphRepository.DeleteAsync(paragraph);
 
         return NoContent(); // Indicates the operation was successful with no response body
