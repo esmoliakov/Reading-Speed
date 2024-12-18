@@ -1,5 +1,11 @@
 @page "/"
+@using Shared.Models
 @inject NavigationManager Navigation
+@using System.Text.Json
+@using Shared.Models.DTOs
+@inject NavigationManager Navigation
+@inject HttpClient HttpClient
+@inject QuizScoreService QuizScoreService
 
 <PageTitle>Start</PageTitle>
 <div class="container">
@@ -15,7 +21,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        height: 50vh;
     }
     .content{
         text-align: center;
@@ -46,10 +52,41 @@
 
 </style>
 
+<h3>Top User Attempts</h3>
+<small class="table-subtitle">(by words per minute)</small>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Rank</th>
+            <th>User</th>
+            <th>Words per minute</th>
+            <th>Answers Count</th>
+        </tr>
+    </thead>
+    <tbody>
+        @for (int i = 0; i < _attempts.Count; i++)
+        {
+            <tr>
+                <td>@(i + 1)</td>
+                <td>@_attempts[i].UserName</td>
+                <td>@_attempts[i].Wpm</td>
+                <td>@_attempts[i].Score</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
 @code {
 
+    private List<AttemptEntity> _attempts = new List<AttemptEntity>();
+    protected override async Task OnInitializedAsync()
+    {
+        _attempts = await HttpClient.GetFromJsonAsync<List<AttemptEntity>>("/api/attempt/get-best-attempts");
+        
+    }
     private void GoToTextReading()
     {
         Navigation.NavigateTo("/quiz");
     }
+
 }

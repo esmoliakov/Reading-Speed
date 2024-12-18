@@ -58,9 +58,9 @@
 
 @if (_resultsVisibility)
 {
-    <p><strong>Your best time in Milliseconds:</strong> @_bestTime </p>
+    <p><strong>Your best time in Seconds:</strong> @_bestTime  </p>
 
-    <p><strong>Your time Milliseconds:</strong> @_currentTime </p>
+    <p><strong>Your time Seconds:</strong> @_currentTime </p>
     
     @if (_result != null)
     {
@@ -70,39 +70,11 @@
         <p><strong>Words per minute:</strong> @_result.Wpm</p>
     }
 }
-@if (_bestResults)
-{
-    <button class="btn btn-primary" @onclick="bestResults">See best results of all time</button>
-    
-    <table class="table table-striped">
-        <thead>
-            <tr>
-                <th>Rank</th>
-                <th>User</th>
-                <th>Paragraph ID</th>
-                <th>Reading Time</th>
-                <th>Answers Count</th>
-            </tr>
-        </thead>
-        <tbody>
-            @for (int i = 0; i < _attempts.Count; i++)
-            {
-                <tr>
-                    <td>@(i + 1)</td>
-                    <td>@_attempts[i].UserName</td>
-                    <td>@_attempts[i].ParagraphId</td>
-                    <td>@_attempts[i].ReadingTime</td>
-                    <td>@_attempts[i].Score</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-}
 
 @code {
     private String _text = "Loading...";
     private List<UserAnswerDTO> _questions = new List<UserAnswerDTO>();
-    private List<AttemptEntity> _attempts = new List<AttemptEntity>();
+
     private int _textId = 0;
     private int _attemptId = 0;
     private long _elapsedTime = 0;
@@ -183,17 +155,16 @@
 
         _result = await HttpClient.GetFromJsonAsync<AttemptEntity>($"/api/attempt/get-attempt?attemptId={_attemptId}");
         _currentTime = _result.ReadingTime;
+        _currentTime = (long)ConvertMillisecondsToSeconds(_currentTime);
         
         long time = await HttpClient.GetFromJsonAsync<long>($"/api/timer/get-best-time?userName={_userName}");
         _bestTime = time;
+        _bestTime = (long)ConvertMillisecondsToSeconds(_bestTime);
 
     }
-    private async Task bestResults()
+    public double ConvertMillisecondsToSeconds(long milliseconds)
     {
-        _resultsVisibility = false;
-        _bestResults = true;
-        _attempts = await HttpClient.GetFromJsonAsync<List<AttemptEntity>>("/api/attempt/get-best-attempts");
-        
+        return Math.Round(milliseconds / 1000.0, 1);
     }
     
     private async Task StartStopwatch()
